@@ -45,10 +45,13 @@ Plans:
   3. User can cancel a queued or running job
   4. Jobs process asynchronously via Celery + Redis queue
   5. File uploads validate input structure (6 views, depth renders)
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] TBD (to be planned)
+- [ ] 02-01-PLAN.md — Celery infrastructure with Redis broker
+- [ ] 02-02-PLAN.md — Pydantic schemas and file validation service
+- [ ] 02-03-PLAN.md — Job manager and Celery reconstruction task
+- [ ] 02-04-PLAN.md — Job API endpoints and integration
 
 ### Phase 3: Model Integration
 **Goal**: System runs both reconstruction models and produces textured mesh outputs
@@ -116,12 +119,12 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 1/1 | ✓ Complete | 2026-01-31 |
-| 2. Job Pipeline | 0/TBD | Not started | - |
+| 1. Foundation | 1/1 | Complete | 2026-01-31 |
+| 2. Job Pipeline | 0/4 | Planned | - |
 | 3. Model Integration | 0/TBD | Not started | - |
 | 4. Quality & Preview | 0/TBD | Not started | - |
 | 5. Results & Error Handling | 0/TBD | Not started | - |
 | 6. Documentation | 0/TBD | Not started | - |
 
 ---
-*Last updated: 2026-01-31 - Phase 1 complete*
+*Last updated: 2026-01-31 - Phase 2 planned (4 plans)*
