@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-01-30)
 ## Current Position
 
 Phase: 3.1 of 6 (CUDA 12 & Real Models - INSERTED)
-Plan: 4 of 6 in current phase
+Plan: 5 of 6 in current phase
 Status: In progress
-Last activity: 2026-01-31 - Completed 03.1-04-PLAN.md (ReconViaGen TRELLIS implementation)
+Last activity: 2026-01-31 - Completed 03.1-05-PLAN.md (nvdiffrec optimization implementation)
 
-Progress: [██████░░░░] 62% (13/21 plans complete)
+Progress: [██████░░░░] 67% (14/21 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 13
+- Total plans completed: 14
 - Average duration: 5 min
-- Total execution time: 1.15 hours
+- Total execution time: 1.2 hours
 
 **By Phase:**
 
@@ -30,11 +30,11 @@ Progress: [██████░░░░] 62% (13/21 plans complete)
 | 1. Foundation | 1 | 12min | 12min |
 | 2. Job Pipeline | 4 | 18min | 5min |
 | 3. Model Integration | 4 | 16min | 4min |
-| 3.1 CUDA 12 Upgrade | 4 | 15min | 4min |
+| 3.1 CUDA 12 Upgrade | 5 | 18min | 4min |
 
 **Recent Trend:**
-- Last 5 plans: 8min, 5min, 3min, 4min, 3min
-- Trend: Consistent velocity, model integration efficient
+- Last 5 plans: 5min, 3min, 4min, 3min, 3min
+- Trend: Consistent velocity, model optimization efficient
 
 *Updated after each plan completion*
 
@@ -100,6 +100,10 @@ Recent decisions affecting current work:
 - 03.1-04: GLB as primary output - trimesh converts to OBJ/PLY for compatibility
 - 03.1-04: 16GB VRAM requirement for TRELLIS - needs ~14-16GB for full pipeline
 - 03.1-04: Non-fatal OBJ/PLY conversion - GLB always available even if trimesh fails
+- 03.1-05: 500 default iterations for nvdiffrec - balance between quality and speed
+- 03.1-05: SimpleGeometry class - deformable sphere with learnable displacement when DMTet unavailable
+- 03.1-05: nvdiffrast fallback - point splatting renderer when nvdiffrast unavailable
+- 03.1-05: Spherical UV mapping - simple texture generation for sphere-based geometry
 
 ### Pending Todos
 
@@ -115,7 +119,7 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-01-31T05:58:55Z
-Stopped at: Completed 03.1-04-PLAN.md
+Last session: 2026-01-31T05:59:30Z
+Stopped at: Completed 03.1-05-PLAN.md
 Resume file: None
-Next: 03.1-05-PLAN.md (nvdiffrec pipeline wrapper)
+Next: 03.1-06-PLAN.md (Replace ReconViaGen STUB)
