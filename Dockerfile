@@ -37,7 +37,8 @@ RUN pip install --no-cache-dir \
     "pytorch3d @ https://dl.fbaipublicfiles.com/pytorch3d/packaging/wheels/py310_cu118_pyt210/pytorch3d-0.7.5-cp310-cp310-linux_x86_64.whl"
 
 # Install nvdiffrast (NVIDIA's differentiable rasterizer)
-RUN pip install --no-cache-dir git+https://github.com/NVlabs/nvdiffrast/
+# Requires --no-build-isolation to find PyTorch during CUDA extension build
+RUN pip install --no-cache-dir --no-build-isolation git+https://github.com/NVlabs/nvdiffrast/
 
 # Copy and install remaining Python dependencies
 COPY requirements.txt .
