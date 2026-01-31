@@ -36,11 +36,15 @@ RUN pip install --no-cache-dir \
 RUN pip install --no-cache-dir "numpy<2"
 
 # Install nvdiffrast (NVIDIA's differentiable rasterizer)
+# - Clone and install locally due to broken pyproject.toml metadata
 # - --no-build-isolation: find PyTorch during CUDA extension build
 # - TORCH_CUDA_ARCH_LIST: specify GPU architectures (no GPU during Docker build)
-#   Updated for newer architectures: Ada Lovelace (8.9) and Hopper (9.0)
 ENV TORCH_CUDA_ARCH_LIST="7.0;7.5;8.0;8.6;8.9;9.0"
-RUN pip install --no-cache-dir --no-build-isolation git+https://github.com/NVlabs/nvdiffrast/
+RUN git clone --depth 1 https://github.com/NVlabs/nvdiffrast.git /tmp/nvdiffrast && \
+    cd /tmp/nvdiffrast && pip install --no-cache-dir --no-build-isolation . && \
+    cp -r /tmp/nvdiffrast/nvdiffrast /usr/local/lib/python3.10/dist-packages/ && \
+    echo '__version__ = "0.3.3"' > /usr/local/lib/python3.10/dist-packages/nvdiffrast/__init__.py && \
+    rm -rf /tmp/nvdiffrast
 
 # Phase 3.1: TRELLIS/ReconViaGen dependencies
 
@@ -69,7 +73,11 @@ RUN pip install --no-cache-dir \
     igraph==0.11.8 \
     lpips \
     scipy \
-    onnxruntime
+    onnxruntime \
+    plyfile \
+    pyvista \
+    pymeshfix \
+    dreamsim
 
 # Clone utils3d from GitHub (TRELLIS dependency)
 # Note: Can't pip install due to broken pyproject.toml metadata
@@ -80,8 +88,10 @@ RUN pip install --no-cache-dir huggingface_hub==0.33.4
 
 # Clone estheryang11/ReconViaGen (TRELLIS-VGGT implementation with app_refine.py)
 # Uses --recursive to include TRELLIS submodule
+# Copy both trellis/ and wheels/ (contains VGGT model)
 RUN git clone --recursive --depth 1 https://github.com/estheryang11/ReconViaGen.git /app/reconviagen_src && \
     cp -r /app/reconviagen_src/trellis /app/ && \
+    cp -r /app/reconviagen_src/wheels /app/ && \
     rm -rf /app/reconviagen_src
 
 # CRITICAL: Set SPCONV_ALGO for spconv to work with TRELLIS
