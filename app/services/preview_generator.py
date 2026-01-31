@@ -24,12 +24,16 @@ import json
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING, Dict, List, Optional, Tuple
 
 import numpy as np
 from PIL import Image
 
-from app.services.mesh_renderer import MeshRenderer, build_mvp_matrix, load_camera_poses
+# Lazy import of mesh_renderer to avoid torch dependency at import time
+# This allows generate_quality_report() to be used without torch
+if TYPE_CHECKING:
+    from app.services.mesh_renderer import MeshRenderer
+
 from app.services.quality_metrics import (
     classify_quality_status,
     compute_depth_error,
@@ -54,7 +58,7 @@ class PreviewGenerator:
     computes quality metrics by comparing renders to input images.
     """
 
-    def __init__(self, renderer: Optional[MeshRenderer] = None):
+    def __init__(self, renderer: Optional["MeshRenderer"] = None):
         """
         Initialize preview generator.
 
@@ -64,9 +68,10 @@ class PreviewGenerator:
         self._renderer = renderer
 
     @property
-    def renderer(self) -> MeshRenderer:
+    def renderer(self) -> "MeshRenderer":
         """Lazy-load renderer on first access."""
         if self._renderer is None:
+            from app.services.mesh_renderer import MeshRenderer
             self._renderer = MeshRenderer()
         return self._renderer
 
@@ -122,7 +127,8 @@ class PreviewGenerator:
 
             logger.debug(f"Rendering preview {i + 1}/{num_previews}")
 
-            # Build MVP matrix
+            # Build MVP matrix (lazy import)
+            from app.services.mesh_renderer import build_mvp_matrix
             mvp = build_mvp_matrix(transform_matrix, camera_angle_x, resolution)
 
             # Render textured image
@@ -224,7 +230,8 @@ class PreviewGenerator:
 
             logger.debug(f"Processing frame {i}: {input_image_path.name}")
 
-            # Build MVP and render
+            # Build MVP and render (lazy import)
+            from app.services.mesh_renderer import build_mvp_matrix
             mvp = build_mvp_matrix(transform_matrix, camera_angle_x, resolution)
             rendered = self.renderer.render_textured(mesh, mvp, resolution)
 
@@ -359,7 +366,8 @@ class PreviewGenerator:
         logger.info(f"Starting quality pipeline for job {job_id}")
         logger.info(f"Mesh: {mesh_path}, Input: {input_dir}, Output: {output_dir}")
 
-        # Load camera poses
+        # Load camera poses (lazy import)
+        from app.services.mesh_renderer import load_camera_poses
         camera_poses = load_camera_poses(input_dir)
         logger.info(f"Loaded {len(camera_poses['frames'])} camera poses")
 
@@ -542,6 +550,7 @@ def generate_previews(
     Returns:
         Dict with "textured" and "wireframe" path lists.
     """
+    from app.services.mesh_renderer import load_camera_poses
     generator = PreviewGenerator()
     camera_poses = load_camera_poses(input_dir)
 
