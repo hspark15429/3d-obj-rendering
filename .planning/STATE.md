@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-30)
 
 **Core value:** End-to-end working pipeline: Upload images, get back validated 3D meshes with quality reports. Everything runs with a single Docker command.
-**Current focus:** Phase 4 - Quality & Preview (Ready to plan)
+**Current focus:** Phase 4 - Quality & Preview (In progress)
 
 ## Current Position
 
 Phase: 4 of 6 (Quality & Preview)
-Plan: 0 of TBD in current phase
-Status: Ready to plan
-Last activity: 2026-01-31 - Completed Phase 3.1 (integration testing verified)
+Plan: 1 of TBD in current phase
+Status: In progress
+Last activity: 2026-01-31 - Completed 04-01-PLAN.md (quality metrics service)
 
-Progress: [███████░░░] 71% (15/21 plans complete)
+Progress: [████████░░] 76% (16/21 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 14
+- Total plans completed: 16
 - Average duration: 5 min
-- Total execution time: 1.2 hours
+- Total execution time: 1.3 hours
 
 **By Phase:**
 
@@ -31,10 +31,11 @@ Progress: [███████░░░] 71% (15/21 plans complete)
 | 2. Job Pipeline | 4 | 18min | 5min |
 | 3. Model Integration | 4 | 16min | 4min |
 | 3.1 CUDA 12 Upgrade | 6 | 26min | 4min |
+| 4. Quality & Preview | 1 | 3min | 3min |
 
 **Recent Trend:**
-- Last 5 plans: 3min, 4min, 3min, 3min, 8min
-- Trend: Consistent velocity, Phase 3.1 complete
+- Last 5 plans: 4min, 3min, 3min, 8min, 3min
+- Trend: Consistent velocity, Phase 4 started
 
 *Updated after each plan completion*
 
@@ -104,6 +105,10 @@ Recent decisions affecting current work:
 - 03.1-05: SimpleGeometry class - deformable sphere with learnable displacement when DMTet unavailable
 - 03.1-05: nvdiffrast fallback - point splatting renderer when nvdiffrast unavailable
 - 03.1-05: Spherical UV mapping - simple texture generation for sphere-based geometry
+- 04-01: PSNR thresholds Normal>=25dB, Warning>=20dB, Failure<20dB
+- 04-01: SSIM thresholds Normal>=0.85, Warning>=0.75, Failure<0.75
+- 04-01: Both PSNR and SSIM must pass threshold for status level (AND logic)
+- 04-01: data_range=1.0 always for float images, channel_axis=-1 for RGB
 
 ### Pending Todos
 
@@ -119,7 +124,7 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-01-31T08:50:00Z
-Stopped at: Completed Phase 3.1 (all 6 plans)
+Last session: 2026-01-31T10:17:05Z
+Stopped at: Completed 04-01-PLAN.md
 Resume file: None
-Next: Plan Phase 4 (Quality & Preview)
+Next: Continue Phase 4 (04-02 preview generation)
