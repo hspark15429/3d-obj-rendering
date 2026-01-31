@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-30)
 
 **Core value:** End-to-end working pipeline: Upload images, get back validated 3D meshes with quality reports. Everything runs with a single Docker command.
-**Current focus:** Phase 3 - Model Integration (Complete)
+**Current focus:** Phase 3.1 - CUDA 12 Upgrade & Real Model Integration (In progress)
 
 ## Current Position
 
-Phase: 3 of 6 (Model Integration)
-Plan: 4 of 4 in current phase
-Status: Phase complete
-Last activity: 2026-01-31 - Completed 03-04-PLAN.md
+Phase: 3.1 of 6 (CUDA 12 & Real Models - INSERTED)
+Plan: 1 of 6 in current phase
+Status: In progress
+Last activity: 2026-01-31 - Completed 03.1-01-PLAN.md (CUDA 12.1 infrastructure)
 
-Progress: [█████░░░░░] 45% (9/20 plans complete)
+Progress: [█████░░░░░] 48% (10/21 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 9
+- Total plans completed: 10
 - Average duration: 5 min
-- Total execution time: 0.8 hours
+- Total execution time: 0.9 hours
 
 **By Phase:**
 
@@ -30,10 +30,11 @@ Progress: [█████░░░░░] 45% (9/20 plans complete)
 | 1. Foundation | 1 | 12min | 12min |
 | 2. Job Pipeline | 4 | 18min | 5min |
 | 3. Model Integration | 4 | 16min | 4min |
+| 3.1 CUDA 12 Upgrade | 1 | 5min | 5min |
 
 **Recent Trend:**
-- Last 5 plans: 8min, 3min, 2min, 3min, 8min
-- Trend: Consistent velocity, model integration efficient
+- Last 5 plans: 3min, 2min, 3min, 8min, 5min
+- Trend: Consistent velocity, infrastructure upgrades efficient
 
 *Updated after each plan completion*
 
@@ -83,10 +84,18 @@ Recent decisions affecting current work:
 - 03-04: Sequential execution for 'both' mode - Run ReconViaGen first, then nvdiffrec with VRAM cleanup between
 - 03-04: 2-hour soft timeout for 'both' mode - Extended timeout (7200s) for sequential model execution
 - 03-04: Progress tracking includes model info - current_model field shows which model is running
+- 03.1-01: CUDA 12.1.1 over 12.4 - better spconv-cu120 compatibility
+- 03.1-01: PyTorch 2.4.1 with cu121 wheels - latest stable version
+- 03.1-01: Removed PyTorch3D wheel - cu118 incompatible, use trimesh+nvdiffrast
+- 03.1-01: TORCH_CUDA_ARCH_LIST 7.0-9.0 - includes Ada Lovelace and Hopper GPUs
 
 ### Pending Todos
 
 None yet.
+
+### Roadmap Evolution
+
+- Phase 3.1 inserted after Phase 3: CUDA 12 upgrade + real model integration (URGENT) - Prioritizing real model output over quality metrics
 
 ### Blockers/Concerns
 
@@ -94,6 +103,7 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-01-31
-Stopped at: Completed 03-04-PLAN.md (Pipeline Integration) - Phase 3 Complete
+Last session: 2026-01-31T05:38:05Z
+Stopped at: Completed 03.1-01-PLAN.md
 Resume file: None
+Next: 03.1-02-PLAN.md (ReconViaGen dependencies)
