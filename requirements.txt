@@ -19,16 +19,19 @@ filetype>=1.2.0
 pytest>=8.0.0
 pytest-asyncio>=0.23.0
 
-# Phase 3: Model integration dependencies
-# PyTorch with CUDA 11.8 - installed via --index-url in Dockerfile
-# torch>=2.0.0
-# torchvision>=0.15.0
+# Phase 3.1: Model integration dependencies
+# PyTorch with CUDA 12.1 - installed via --index-url in Dockerfile
+# torch==2.4.1
+# torchvision==0.19.1
 
-# 3D processing
+# 3D processing - numpy<2 required for spconv/nvdiffrast ABI compatibility
+numpy>=1.24.0,<2
 trimesh>=4.0.0
 Pillow>=10.0.0
-numpy>=1.24.0
 scipy>=1.11.0
 
-# Note: pytorch3d and nvdiffrast installed from git in Dockerfile
-# due to custom build requirements
+# Note: nvdiffrast installed from git in Dockerfile due to CUDA extension build
+# PyTorch3D removed in Phase 3.1 (cu118 wheel incompatible with cu121)
+
+# Phase 3.1: Additional dependencies (added in 03.1-02 and 03.1-03)
+# spconv-cu120, xformers, flash-attn, tiny-cuda-nn
