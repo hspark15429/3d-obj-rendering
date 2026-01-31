@@ -16,9 +16,9 @@
 
 ### 3D Reconstruction Models
 
-- [ ] **MODEL-01**: System can run ReconViaGen model on multi-view RGB + depth input to produce textured mesh
-- [ ] **MODEL-02**: System can run nvdiffrec model on multi-view RGB + depth input to produce textured mesh
-- [ ] **MODEL-03**: User can select which model to run when submitting a job
+- [~] **MODEL-01**: System can run ReconViaGen model on multi-view RGB + depth input to produce textured mesh *(STUB: pipeline ready, real model pending CUDA 12 upgrade)*
+- [~] **MODEL-02**: System can run nvdiffrec model on multi-view RGB + depth input to produce textured mesh *(STUB: pipeline ready, real model pending)*
+- [x] **MODEL-03**: User can select which model to run when submitting a job
 
 ### Quality Validation
 
@@ -29,7 +29,7 @@
 
 ### Output & Preview
 
-- [ ] **OUT-01**: System generates textured mesh output (OBJ/PLY with texture files)
+- [x] **OUT-01**: System generates textured mesh output (OBJ/PLY with texture files)
 - [ ] **OUT-02**: System generates static preview images from multiple angles
 
 ### Deployment
@@ -75,14 +75,14 @@
 | API-03 | Phase 5 | Pending |
 | API-04 | Phase 2 | Complete |
 | API-05 | Phase 1 | Complete |
-| MODEL-01 | Phase 3 | Pending |
-| MODEL-02 | Phase 3 | Pending |
-| MODEL-03 | Phase 3 | Pending |
+| MODEL-01 | Phase 3 | STUB (pipeline ready) |
+| MODEL-02 | Phase 3 | STUB (pipeline ready) |
+| MODEL-03 | Phase 3 | Complete |
 | QUAL-01 | Phase 4 | Pending |
 | QUAL-02 | Phase 4 | Pending |
 | QUAL-03 | Phase 4 | Pending |
 | QUAL-04 | Phase 4 | Pending |
-| OUT-01 | Phase 3 | Pending |
+| OUT-01 | Phase 3 | Complete |
 | OUT-02 | Phase 4 | Pending |
 | DEPLOY-01 | Phase 1 | Complete |
 | DEPLOY-02 | Phase 1 | Complete |
