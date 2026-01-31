@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-01-30)
 ## Current Position
 
 Phase: 3.1 of 6 (CUDA 12 & Real Models - INSERTED)
-Plan: 2 of 6 in current phase
+Plan: 3 of 6 in current phase
 Status: In progress
-Last activity: 2026-01-31 - Completed 03.1-02-PLAN.md (TRELLIS dependencies and pipeline wrapper)
+Last activity: 2026-01-31 - Completed 03.1-03-PLAN.md (nvdiffrec dependencies and camera estimation)
 
-Progress: [█████░░░░░] 52% (11/21 plans complete)
+Progress: [█████░░░░░] 57% (12/21 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 11
+- Total plans completed: 12
 - Average duration: 5 min
-- Total execution time: 1.0 hours
+- Total execution time: 1.1 hours
 
 **By Phase:**
 
@@ -30,10 +30,10 @@ Progress: [█████░░░░░] 52% (11/21 plans complete)
 | 1. Foundation | 1 | 12min | 12min |
 | 2. Job Pipeline | 4 | 18min | 5min |
 | 3. Model Integration | 4 | 16min | 4min |
-| 3.1 CUDA 12 Upgrade | 2 | 8min | 4min |
+| 3.1 CUDA 12 Upgrade | 3 | 12min | 4min |
 
 **Recent Trend:**
-- Last 5 plans: 2min, 3min, 8min, 5min, 3min
+- Last 5 plans: 3min, 8min, 5min, 3min, 4min
 - Trend: Consistent velocity, infrastructure upgrades efficient
 
 *Updated after each plan completion*
@@ -92,6 +92,10 @@ Recent decisions affecting current work:
 - 03.1-02: SPCONV_ALGO=native in Dockerfile and Python - critical for spconv to work with TRELLIS
 - 03.1-02: Clone estheryang11/ReconViaGen with --recursive - includes TRELLIS submodule
 - 03.1-02: Lazy TrellisPipelineWrapper loading - defers heavy imports to load() method
+- 03.1-03: --no-build-isolation for tiny-cuda-nn - required for CUDA extension compilation
+- 03.1-03: OpenGL camera convention - camera looks along -Z with Y-up for NeRF/nvdiffrec
+- 03.1-03: Canonical 6-view camera layout - front/back/right/left/top/bottom at distance 2.5
+- 03.1-03: Default focal length 1111.0 - produces ~26 degree FOV for object rendering
 
 ### Pending Todos
 
@@ -107,7 +111,7 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-01-31T05:43:16Z
-Stopped at: Completed 03.1-02-PLAN.md
+Last session: 2026-01-31T05:53:00Z
+Stopped at: Completed 03.1-03-PLAN.md
 Resume file: None
-Next: 03.1-03-PLAN.md (Replace ReconViaGen STUB with real implementation)
+Next: 03.1-04-PLAN.md (nvdiffrec pipeline wrapper)
