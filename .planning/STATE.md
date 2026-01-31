@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-30)
 
 **Core value:** End-to-end working pipeline: Upload images, get back validated 3D meshes with quality reports. Everything runs with a single Docker command.
-**Current focus:** Phase 5 - Results & Error Handling (Ready to plan)
+**Current focus:** Phase 5 - Results & Error Handling (In progress)
 
 ## Current Position
 
 Phase: 5 of 6 (Results & Error Handling)
-Plan: 0 of TBD in current phase
-Status: Ready to plan
-Last activity: 2026-01-31 - Phase 4 complete and verified
+Plan: 1 of TBD in current phase
+Status: In progress
+Last activity: 2026-01-31 - Completed 05-01-PLAN.md
 
-Progress: [█████████░] 90% (19/21 plans complete)
+Progress: [█████████░] 95% (20/21 plans complete)
 
 ## Performance Metrics
 
@@ -33,9 +33,11 @@ Progress: [█████████░] 90% (19/21 plans complete)
 | 3.1 CUDA 12 Upgrade | 6 | 26min | 4min |
 | 4. Quality & Preview | 4 | 16min | 4min |
 
+| 5. Results & Error Handling | 1 | 2min | 2min |
+
 **Recent Trend:**
-- Last 5 plans: 8min, 3min, 5min, 2min, 6min
-- Trend: Consistent velocity, Phase 4 complete
+- Last 5 plans: 3min, 5min, 2min, 6min, 2min
+- Trend: Consistent velocity, Phase 5 in progress
 
 *Updated after each plan completion*
 
@@ -117,6 +119,10 @@ Recent decisions affecting current work:
 - 04-04: Lazy imports in services/__init__.py via __getattr__ - enables tests without torch
 - 04-04: Quality failure = job failure - per CONTEXT.md requirement
 - 04-04: String type annotations for forward references
+- 05-01: 17 error codes covering validation, not found, conflict, gone, model, and resource errors
+- 05-01: Specific error code detection from message patterns (FILE_TOO_LARGE, INVALID_FILE_FORMAT, etc.)
+- 05-01: 422 status for validation errors (was 400, now semantically correct)
+- 05-01: Generic Exception handler logs errors but returns safe message (no internal details exposed)
 
 ### Pending Todos
 
@@ -132,7 +138,7 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-01-31T10:37:00Z
-Stopped at: Phase 4 complete and verified (5/5 must-haves verified)
+Last session: 2026-01-31T11:03:28Z
+Stopped at: Completed 05-01-PLAN.md (Error Code Infrastructure)
 Resume file: None
-Next: Plan Phase 5 (Results & Error Handling)
+Next: Execute 05-02-PLAN.md (if exists) or create remaining Phase 5 plans
