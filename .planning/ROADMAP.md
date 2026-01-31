@@ -13,7 +13,7 @@ This roadmap delivers a Docker-based 3D reconstruction pipeline in 6 phases, pro
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation** - Docker environment with GPU support and basic API
-- [ ] **Phase 2: Job Pipeline** - Async job queue infrastructure for long-running inference
+- [x] **Phase 2: Job Pipeline** - Async job queue infrastructure for long-running inference
 - [ ] **Phase 3: Model Integration** - ReconViaGen and nvdiffrec model execution
 - [ ] **Phase 4: Quality & Preview** - Metrics computation and result validation
 - [ ] **Phase 5: Results & Error Handling** - Complete API with robust error handling
@@ -48,10 +48,10 @@ Plans:
 **Plans**: 4 plans
 
 Plans:
-- [ ] 02-01-PLAN.md — Celery infrastructure with Redis broker
-- [ ] 02-02-PLAN.md — Pydantic schemas and file validation service
-- [ ] 02-03-PLAN.md — Job manager and Celery reconstruction task
-- [ ] 02-04-PLAN.md — Job API endpoints and integration
+- [x] 02-01-PLAN.md — Celery infrastructure with Redis broker
+- [x] 02-02-PLAN.md — Pydantic schemas and file validation service
+- [x] 02-03-PLAN.md — Job manager and Celery reconstruction task
+- [x] 02-04-PLAN.md — Job API endpoints and integration
 
 ### Phase 3: Model Integration
 **Goal**: System runs both reconstruction models and produces textured mesh outputs
@@ -120,11 +120,11 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 1/1 | Complete | 2026-01-31 |
-| 2. Job Pipeline | 0/4 | Planned | - |
+| 2. Job Pipeline | 4/4 | Complete | 2026-01-31 |
 | 3. Model Integration | 0/TBD | Not started | - |
 | 4. Quality & Preview | 0/TBD | Not started | - |
 | 5. Results & Error Handling | 0/TBD | Not started | - |
 | 6. Documentation | 0/TBD | Not started | - |
 
 ---
-*Last updated: 2026-01-31 - Phase 2 planned (4 plans)*
+*Last updated: 2026-01-31 - Phase 2 complete (4/4 plans)*

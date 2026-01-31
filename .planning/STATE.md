@@ -5,34 +5,34 @@
 See: .planning/PROJECT.md (updated 2026-01-30)
 
 **Core value:** End-to-end working pipeline: Upload images, get back validated 3D meshes with quality reports. Everything runs with a single Docker command.
-**Current focus:** Phase 2 - Job Pipeline
+**Current focus:** Phase 2 - Job Pipeline (Complete)
 
 ## Current Position
 
 Phase: 2 of 6 (Job Pipeline)
-Plan: 3 of 4 in current phase
-Status: In progress
-Last activity: 2026-01-31 — Completed 02-03-PLAN.md
+Plan: 4 of 4 in current phase
+Status: Phase complete
+Last activity: 2026-01-31 — Completed 02-04-PLAN.md
 
-Progress: [████░░░░░░] 40% (4 of 10 plans complete)
+Progress: [██░░░░░░░░] 20% (Phase 2 complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 4
+- Total plans completed: 5
 - Average duration: 6 min
-- Total execution time: 0.37 hours
+- Total execution time: 0.5 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 1. Foundation | 1 | 12min | 12min |
-| 2. Job Pipeline | 3 | 10min | 3min |
+| 2. Job Pipeline | 4 | 18min | 5min |
 
 **Recent Trend:**
-- Last 5 plans: 12min, 4min, 3min, 3min
-- Trend: Accelerating (Phase 2 plans smaller, focused)
+- Last 5 plans: 12min, 4min, 3min, 3min, 8min
+- Trend: Consistent execution, checkpoint plan (02-04) took longer due to E2E testing
 
 *Updated after each plan completion*
 
@@ -65,6 +65,9 @@ Recent decisions affecting current work:
 - 02-03: Cancellation before each step - Check is_job_cancelled() before each of 6 processing steps for responsive cancellation
 - 02-03: Progress tracking via update_state - PROGRESS state with meta={'progress': %, 'step': name}
 - 02-03: File cleanup on cancel - delete_job_files() before returning cancelled status
+- 02-04: apply_async with task_id=job_id - Match our job_id with Celery task ID for status lookup
+- 02-04: Read content for size check - FastAPI UploadFile.seek() doesn't support whence parameter
+- 02-04: Explicit task import in __init__.py - Required for Celery autodiscovery
 
 ### Pending Todos
 
@@ -76,6 +79,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-01-31T01:36:20Z
-Stopped at: Completed 02-03-PLAN.md (Phase 2, Plan 3 of 4)
+Last session: 2026-01-31
+Stopped at: Completed Phase 2 (Job Pipeline) - all 4 plans verified
 Resume file: None
