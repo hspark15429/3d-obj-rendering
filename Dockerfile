@@ -42,6 +42,34 @@ RUN pip install --no-cache-dir "numpy<2"
 ENV TORCH_CUDA_ARCH_LIST="7.0;7.5;8.0;8.6;8.9;9.0"
 RUN pip install --no-cache-dir --no-build-isolation git+https://github.com/NVlabs/nvdiffrast/
 
+# Phase 3.1: TRELLIS/ReconViaGen dependencies
+
+# Install spconv-cu120 (sparse convolutions for TRELLIS SLAT)
+RUN pip install --no-cache-dir spconv-cu120==2.3.6
+
+# Install xformers (memory-efficient attention, fallback if flash-attn unavailable)
+RUN pip install --no-cache-dir xformers==0.0.27.post2
+
+# Install flash-attn from pre-built wheel (CRITICAL: do NOT build from source - takes hours)
+# Pre-built for: CUDA 12, PyTorch 2.4, Python 3.10, cxx11abi=FALSE
+RUN pip install --no-cache-dir \
+    https://github.com/Dao-AILab/flash-attention/releases/download/v2.7.0.post2/flash_attn-2.7.0.post2+cu12torch2.4cxx11abiFALSE-cp310-cp310-linux_x86_64.whl
+
+# Install transformers and einops for VGGT backbone
+RUN pip install --no-cache-dir transformers==4.46.3 einops==0.8.1
+
+# Install huggingface_hub for model downloads
+RUN pip install --no-cache-dir huggingface_hub==0.33.4
+
+# Clone estheryang11/ReconViaGen (TRELLIS-VGGT implementation with app_refine.py)
+# Uses --recursive to include TRELLIS submodule
+RUN git clone --recursive --depth 1 https://github.com/estheryang11/ReconViaGen.git /app/reconviagen_src && \
+    cp -r /app/reconviagen_src/trellis /app/ && \
+    rm -rf /app/reconviagen_src
+
+# CRITICAL: Set SPCONV_ALGO for spconv to work with TRELLIS
+ENV SPCONV_ALGO=native
+
 # Copy and install remaining Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
