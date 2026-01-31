@@ -18,6 +18,7 @@ from app.services.job_manager import is_job_cancelled, clear_cancellation
 from app.services.file_handler import delete_job_files, get_job_path, STORAGE_ROOT
 from app.services.vram_manager import cleanup_gpu_memory
 from app.services.preview_generator import PreviewGenerator
+from app.services.camera_estimation import create_transforms_json
 from app.api.error_codes import ErrorCode
 
 logger = logging.getLogger(__name__)
@@ -70,6 +71,20 @@ def process_reconstruction(
             "job_id": job_id,
             "error": "Job input files not found"
         }
+
+    # Create transforms_train.json for quality pipeline (if not exists)
+    transforms_path = input_dir / "transforms_train.json"
+    if not transforms_path.exists():
+        logger.info(f"Creating transforms_train.json for job {job_id}")
+        transforms_result = create_transforms_json(input_dir)
+        if transforms_result["status"] != "success":
+            logger.error(f"Failed to create transforms: {transforms_result.get('error')}")
+            return {
+                "status": "failed",
+                "job_id": job_id,
+                "error_code": ErrorCode.INPUT_VALIDATION_FAILED.value,
+                "error": f"Failed to create camera transforms: {transforms_result.get('error')}"
+            }
 
     # Determine which models to run
     if model_type == 'both':

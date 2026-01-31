@@ -119,6 +119,64 @@ class SimpleGeometry:
         return [self.displacements, self.vertex_colors]
 
 
+class ImportedGeometry:
+    """
+    Geometry wrapper for arbitrary meshes (e.g., from visual hull).
+
+    Similar interface to SimpleGeometry but initializes from an existing
+    trimesh mesh instead of a sphere. Allows larger deformations since
+    the initial shape already approximates the target.
+    """
+
+    def __init__(self, mesh, device: torch.device = None):
+        """
+        Initialize from trimesh mesh.
+
+        Args:
+            mesh: trimesh.Trimesh object
+            device: PyTorch device
+        """
+        import trimesh
+        self.device = device or torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+        # Extract vertices and faces from trimesh
+        verts = np.array(mesh.vertices, dtype=np.float32)
+        faces = np.array(mesh.faces, dtype=np.int64)
+
+        self.base_verts = torch.from_numpy(verts).to(self.device)
+        self.faces = torch.from_numpy(faces).to(self.device)
+
+        logger.info(f"ImportedGeometry: {len(self.base_verts)} vertices, {len(self.faces)} faces")
+
+        # Learnable displacement per vertex (allow larger displacements than SimpleGeometry)
+        self.displacements = torch.nn.Parameter(
+            torch.zeros_like(self.base_verts, device=self.device)
+        )
+
+        # Learnable vertex colors (RGB) - initialize based on vertex normals for variety
+        if hasattr(mesh, 'vertex_normals') and mesh.vertex_normals is not None:
+            normals = np.array(mesh.vertex_normals, dtype=np.float32)
+            # Map normals to colors (shift from [-1,1] to [0,1])
+            initial_colors = (normals + 1.0) / 2.0
+            initial_colors = np.clip(initial_colors, 0.2, 0.8)  # Avoid extremes
+        else:
+            initial_colors = np.ones((len(verts), 3), dtype=np.float32) * 0.5
+
+        self.vertex_colors = torch.nn.Parameter(
+            torch.from_numpy(initial_colors).to(self.device)
+        )
+
+    @property
+    def vertices(self) -> torch.Tensor:
+        """Get current deformed vertices."""
+        # Allow full displacement range (no 0.5 scaling like SimpleGeometry)
+        return self.base_verts + self.displacements
+
+    def parameters(self) -> List[torch.nn.Parameter]:
+        """Return learnable parameters for optimizer."""
+        return [self.displacements, self.vertex_colors]
+
+
 class NvdiffrecModel(BaseReconstructionModel):
     """
     nvdiffrec reconstruction model wrapper.
@@ -258,10 +316,34 @@ class NvdiffrecModel(BaseReconstructionModel):
             target_images, camera_matrices = self._load_nerf_dataset(nerf_dir)
             logger.info(f"Loaded {len(target_images)} target images")
 
-            # Step 3: Initialize geometry
-            self.report_progress(30, "Initializing mesh geometry")
+            # Step 3: Initialize geometry from visual hull
+            self.report_progress(30, "Computing visual hull from depth maps")
 
-            geometry = SimpleGeometry(resolution=32, device=self._device)
+            # Load depth maps for visual hull computation
+            depth_maps = self._load_depth_maps(depth_dir)
+            camera_matrices_np = [m.cpu().numpy() for m in camera_matrices]
+
+            # Create visual hull mesh
+            try:
+                from app.utils.geometry import visual_hull_from_depths
+                vh_mesh = visual_hull_from_depths(
+                    depth_maps=depth_maps,
+                    camera_matrices=camera_matrices_np,
+                    # Auto-detect image_size and focal_length from depth maps
+                    image_size=None,  # Will use depth_maps[0].shape
+                    focal_length=None,  # Will compute for ~50deg FOV
+                    voxel_resolution=64,
+                    bounds=1.0,
+                    camera_distance=2.5  # Standard camera distance
+                )
+                geometry = ImportedGeometry(vh_mesh, device=self._device)
+                logger.info(f"Using visual hull initialization: {len(vh_mesh.vertices)} vertices")
+            except Exception as e:
+                logger.warning(f"Visual hull failed: {e}, falling back to sphere")
+                import traceback
+                traceback.print_exc()
+                geometry = SimpleGeometry(resolution=32, device=self._device)
+
             optimizer = torch.optim.Adam(geometry.parameters(), lr=0.01)
 
             # Step 4: Run optimization loop
@@ -411,6 +493,34 @@ class NvdiffrecModel(BaseReconstructionModel):
 
         return target_images, camera_matrices
 
+    def _load_depth_maps(self, depth_dir: Path) -> List[np.ndarray]:
+        """
+        Load depth maps from directory.
+
+        Args:
+            depth_dir: Directory containing depth_00.png through depth_05.png
+
+        Returns:
+            List of 6 depth maps as numpy arrays, normalized to [0, 1]
+        """
+        depth_maps = []
+        depth_dir = Path(depth_dir)
+
+        for i in range(6):
+            depth_path = depth_dir / f"depth_{i:02d}.png"
+            if depth_path.exists():
+                from PIL import Image
+                depth_img = Image.open(depth_path).convert("L")
+                depth_array = np.array(depth_img, dtype=np.float32) / 255.0
+                depth_maps.append(depth_array)
+            else:
+                logger.warning(f"Depth map not found: {depth_path}")
+                # Use empty depth map (all zeros = background)
+                depth_maps.append(np.zeros((512, 512), dtype=np.float32))
+
+        logger.info(f"Loaded {len(depth_maps)} depth maps from {depth_dir}")
+        return depth_maps
+
     def _render_mesh(
         self,
         vertices: torch.Tensor,
@@ -449,20 +559,25 @@ class NvdiffrecModel(BaseReconstructionModel):
         # Transform to camera space
         verts_cam = (world_to_cam @ verts_homo.T).T[:, :3]
 
-        # Simple perspective projection (approximation)
-        focal = 1111.0  # Match dataset focal length
+        # Perspective projection with auto-computed focal length
+        # focal = width / (2 * tan(fov/2)), for ~50deg FOV: focal ≈ width * 1.07
+        focal = W * 1.07
         cx, cy = W / 2, H / 2
 
         # Project to image plane
-        z = verts_cam[:, 2:3].clamp(min=0.1)  # Avoid division by zero
-        x_proj = (verts_cam[:, 0:1] * focal / z) + cx
-        y_proj = (verts_cam[:, 1:2] * focal / z) + cy
+        # In OpenGL, camera looks along -Z, so depth is -Z (positive for objects in front)
+        depth = -verts_cam[:, 2:3]
+        depth = depth.clamp(min=0.1)  # Avoid division by zero
 
-        # Clip coordinates
+        # Project with correct signs for OpenGL convention
+        x_proj = (-verts_cam[:, 0:1] * focal / depth) + cx
+        y_proj = (-verts_cam[:, 1:2] * focal / depth) + cy
+
+        # Clip coordinates for nvdiffrast
         verts_clip = torch.zeros(vertices.shape[0], 4, device=self._device)
         verts_clip[:, 0] = (x_proj.squeeze() / W) * 2 - 1
         verts_clip[:, 1] = (y_proj.squeeze() / H) * 2 - 1
-        verts_clip[:, 2] = (z.squeeze() - 0.5) / 2.5  # Normalize depth
+        verts_clip[:, 2] = (depth.squeeze() - 1.5) / 2.0  # Normalize depth to [-1, 1] range
         verts_clip[:, 3] = 1.0
 
         if self._glctx is not None:
@@ -534,19 +649,26 @@ class NvdiffrecModel(BaseReconstructionModel):
 
         return rendered
 
-    def _compute_regularization(self, geometry: SimpleGeometry) -> torch.Tensor:
+    def _compute_regularization(self, geometry) -> torch.Tensor:
         """
         Compute regularization losses for geometry.
 
         Includes:
         - Displacement smoothness (Laplacian)
         - Displacement magnitude constraint
+
+        Uses weaker regularization for ImportedGeometry (visual hull)
+        since we start from a better shape.
         """
         reg_loss = torch.tensor(0.0, device=self._device)
 
         # Displacement magnitude regularization
+        # Use weaker weight for ImportedGeometry (already good shape)
+        is_imported = isinstance(geometry, ImportedGeometry)
+        disp_weight = 0.001 if is_imported else 0.01
+
         disp_mag = torch.norm(geometry.displacements, dim=1).mean()
-        reg_loss = reg_loss + 0.01 * disp_mag
+        reg_loss = reg_loss + disp_weight * disp_mag
 
         # Color smoothness (encourage smooth vertex colors)
         color_var = torch.var(geometry.vertex_colors, dim=0).mean()

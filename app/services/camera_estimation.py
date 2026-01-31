@@ -21,14 +21,14 @@ from PIL import Image
 logger = logging.getLogger(__name__)
 
 # Standard orthogonal view directions (camera looks at origin)
-# Order: front (+Z), back (-Z), right (+X), left (-X), top (+Y), bottom (-Y)
+# Order matches user upload: front, back, left, right, top, bottom
 CANONICAL_VIEWS = [
-    {"name": "front",  "position": [0, 0, 2.5],  "up": [0, 1, 0]},
-    {"name": "back",   "position": [0, 0, -2.5], "up": [0, 1, 0]},
-    {"name": "right",  "position": [2.5, 0, 0],  "up": [0, 1, 0]},
-    {"name": "left",   "position": [-2.5, 0, 0], "up": [0, 1, 0]},
-    {"name": "top",    "position": [0, 2.5, 0],  "up": [0, 0, -1]},
-    {"name": "bottom", "position": [0, -2.5, 0], "up": [0, 0, 1]},
+    {"name": "front",  "position": [0, 0, 2.5],  "up": [0, 1, 0]},   # +Z (view_00)
+    {"name": "back",   "position": [0, 0, -2.5], "up": [0, 1, 0]},   # -Z (view_01)
+    {"name": "left",   "position": [-2.5, 0, 0], "up": [0, 1, 0]},   # -X (view_02)
+    {"name": "right",  "position": [2.5, 0, 0],  "up": [0, 1, 0]},   # +X (view_03)
+    {"name": "top",    "position": [0, 2.5, 0],  "up": [0, 0, -1]},  # +Y (view_04)
+    {"name": "bottom", "position": [0, -2.5, 0], "up": [0, 0, 1]},   # -Y (view_05)
 ]
 
 
@@ -233,3 +233,75 @@ def validate_nerf_dataset(dataset_dir: Path) -> Dict:
         return {"valid": False, "error": f"Invalid JSON: {e}"}
     except Exception as e:
         return {"valid": False, "error": str(e)}
+
+
+def create_transforms_json(
+    job_dir: Path,
+    image_size: int = 512,
+    focal_length: float = 1111.0,
+) -> Dict:
+    """
+    Create transforms_train.json in job directory for quality pipeline.
+
+    This is a lightweight version of create_nerf_dataset that just creates
+    the camera poses file without copying/processing images. It points to
+    the existing views/ directory.
+
+    Args:
+        job_dir: Job directory containing views/ subdirectory
+        image_size: Image resolution (for FOV calculation)
+        focal_length: Camera focal length in pixels
+
+    Returns:
+        Dict with status and path
+    """
+    job_dir = Path(job_dir)
+    views_dir = job_dir / "views"
+
+    if not views_dir.exists():
+        return {
+            "status": "failed",
+            "error": f"Views directory not found: {views_dir}"
+        }
+
+    view_files = sorted(views_dir.glob("view_*.png"))
+    if len(view_files) != 6:
+        return {
+            "status": "failed",
+            "error": f"Expected 6 view files, found {len(view_files)}"
+        }
+
+    # Compute camera angle (FOV)
+    camera_angle_x = compute_fov_x(image_size, focal_length)
+
+    frames = []
+    for i, view_config in enumerate(CANONICAL_VIEWS):
+        # Create camera transform matrix
+        transform_matrix = look_at_matrix(
+            eye=view_config["position"],
+            target=[0, 0, 0],
+            up=view_config["up"]
+        )
+
+        frames.append({
+            "file_path": f"./views/view_{i:02d}.png",
+            "transform_matrix": transform_matrix.tolist()
+        })
+
+    # Write transforms_train.json to job directory
+    transforms = {
+        "camera_angle_x": camera_angle_x,
+        "frames": frames
+    }
+
+    transforms_path = job_dir / "transforms_train.json"
+    with open(transforms_path, "w") as f:
+        json.dump(transforms, f, indent=2)
+
+    logger.info(f"Created transforms_train.json at {transforms_path}")
+
+    return {
+        "status": "success",
+        "transforms_path": str(transforms_path),
+        "frame_count": len(frames)
+    }

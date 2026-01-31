@@ -104,7 +104,10 @@ class PreviewGenerator:
         """
         mesh_path = Path(mesh_path)
         output_dir = Path(output_dir)
-        output_dir.mkdir(parents=True, exist_ok=True)
+
+        # Create previews subdirectory per result_packager.py expectations
+        previews_dir = output_dir / "previews"
+        previews_dir.mkdir(parents=True, exist_ok=True)
 
         logger.info(f"Generating preview images from {mesh_path}")
         logger.info(f"Resolution: {resolution}, poses: {len(camera_poses['frames'])}")
@@ -134,13 +137,13 @@ class PreviewGenerator:
             # Render textured image
             textured = self.renderer.render_textured(mesh, mvp, resolution)
             textured_uint8 = (textured * 255).astype(np.uint8)
-            textured_path = output_dir / f"preview_textured_{i:02d}.png"
+            textured_path = previews_dir / f"textured_{i:02d}.png"
             Image.fromarray(textured_uint8).save(textured_path)
             textured_paths.append(textured_path)
 
             # Render wireframe image
             wireframe = self.renderer.render_wireframe(mesh, mvp, resolution)
-            wireframe_path = output_dir / f"preview_wireframe_{i:02d}.png"
+            wireframe_path = previews_dir / f"wireframe_{i:02d}.png"
             Image.fromarray(wireframe).save(wireframe_path)
             wireframe_paths.append(wireframe_path)
 
