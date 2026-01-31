@@ -56,7 +56,23 @@ RUN pip install --no-cache-dir \
     https://github.com/Dao-AILab/flash-attention/releases/download/v2.7.0.post2/flash_attn-2.7.0.post2+cu12torch2.4cxx11abiFALSE-cp310-cp310-linux_x86_64.whl
 
 # Install transformers and einops for VGGT backbone
-RUN pip install --no-cache-dir transformers==4.46.3 einops==0.8.1 easydict
+RUN pip install --no-cache-dir transformers==4.46.3 einops==0.8.1
+
+# Install TRELLIS additional dependencies (from ReconViaGen requirements)
+RUN pip install --no-cache-dir \
+    easydict \
+    kornia==0.8.0 \
+    timm==0.6.7 \
+    opencv-python-headless \
+    rembg==2.0.60 \
+    xatlas==0.0.9 \
+    igraph==0.11.8 \
+    lpips \
+    scipy \
+    onnxruntime
+
+# Install utils3d from GitHub (TRELLIS dependency)
+RUN pip install --no-cache-dir git+https://github.com/EasternJournalist/utils3d.git
 
 # Install huggingface_hub for model downloads
 RUN pip install --no-cache-dir huggingface_hub==0.33.4
