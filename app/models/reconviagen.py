@@ -1,54 +1,56 @@
 """
-ReconViaGen model wrapper for 3D reconstruction.
+ReconViaGen model wrapper for 3D reconstruction using TRELLIS-VGGT.
 
-STATUS: STUB IMPLEMENTATION
-- Official ReconViaGen code not yet released (stuck in company review)
-- This stub implements the full interface for integration testing
-- Replace inference logic when official code is available
+Uses TrellisPipelineWrapper to run TRELLIS-VGGT inference and exports
+textured meshes via postprocessing_utils.to_glb().
 
-Based on: https://github.com/GAP-LAB-CUHK-SZ/ReconViaGen (code pending)
+Based on: https://github.com/estheryang11/ReconViaGen
+Reference: https://huggingface.co/spaces/Stable-X/ReconViaGen/blob/main/app.py
 """
+import os
 import logging
-import tempfile
-import shutil
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List
+
+# CRITICAL: Set SPCONV_ALGO before any trellis imports
+# This must be done before spconv is imported or it will hang/crash
+os.environ['SPCONV_ALGO'] = 'native'
 
 import torch
-import numpy as np
+from PIL import Image
 
 from app.models.base import BaseReconstructionModel
-from app.services.mesh_export import save_mesh_both_formats, validate_mesh_output
+from app.models.trellis import TrellisPipelineWrapper
 from app.services.vram_manager import cleanup_gpu_memory, check_vram_available
 
 logger = logging.getLogger(__name__)
 
 # Model configuration
 WEIGHTS_PATH = Path("/app/weights/reconviagen")
-REQUIRED_VRAM_GB = 12.0  # Conservative estimate based on TRELLIS requirements
+REQUIRED_VRAM_GB = 16.0  # TRELLIS needs ~14-16GB VRAM
 INFERENCE_TIMEOUT_SEC = 1800  # 30 minutes
 
 
 class ReconViaGenModel(BaseReconstructionModel):
     """
-    ReconViaGen reconstruction model wrapper.
+    ReconViaGen reconstruction model using TRELLIS-VGGT pipeline.
 
-    Converts multi-view RGB + depth images to textured 3D mesh.
-    Uses TRELLIS-based architecture for sparse-view reconstruction.
+    Converts multi-view RGB images to textured 3D mesh via GLB export.
+    Uses TrellisPipelineWrapper for model loading and inference.
     """
 
     model_name = "reconviagen"
 
     def __init__(self, celery_task=None):
         super().__init__(celery_task)
+        self._pipeline: Optional[TrellisPipelineWrapper] = None
         self._device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     def load_weights(self) -> None:
         """
-        Load pre-downloaded ReconViaGen model weights.
+        Load TRELLIS-VGGT model weights via TrellisPipelineWrapper.
 
         Raises:
-            FileNotFoundError: If weights not found at expected path
             RuntimeError: If insufficient VRAM available
         """
         self.report_progress(5, "Checking VRAM availability")
@@ -61,123 +63,195 @@ class ReconViaGenModel(BaseReconstructionModel):
                 f"{REQUIRED_VRAM_GB}GB required"
             )
 
-        self.report_progress(10, "Loading model weights")
-        logger.info(f"Loading ReconViaGen weights from {WEIGHTS_PATH}")
+        self.report_progress(10, "Loading TRELLIS model weights")
+        logger.info("Initializing TrellisPipelineWrapper")
 
-        # STUB: In real implementation, load model here
-        # self._model = load_reconviagen_model(WEIGHTS_PATH)
-        # self._model.to(self._device)
-        # self._model.eval()
+        # Initialize and load pipeline
+        self._pipeline = TrellisPipelineWrapper(device="cuda")
+        self._pipeline.load()
 
-        # For now, just verify weights directory exists
-        if not WEIGHTS_PATH.exists():
-            logger.warning(f"Weights directory not found: {WEIGHTS_PATH}")
-            # Don't fail - stub can run without weights
-            WEIGHTS_PATH.mkdir(parents=True, exist_ok=True)
-
-        logger.info("ReconViaGen model loaded (STUB)")
+        logger.info("TRELLIS-VGGT model loaded successfully")
         self.report_progress(15, "Model loaded")
+
+    def _load_images(self, views_dir: Path) -> List[Image.Image]:
+        """
+        Load view images as PIL Images.
+
+        Args:
+            views_dir: Directory containing view_00.png...view_N.png
+
+        Returns:
+            List of PIL Images resized to 512px height
+        """
+        view_files = sorted(views_dir.glob("view_*.png"))
+        images = []
+
+        for f in view_files:
+            img = Image.open(f).convert("RGB")
+            # Resize to 512px height maintaining aspect ratio (TRELLIS expects this)
+            if img.height != 512:
+                ratio = 512 / img.height
+                new_size = (int(img.width * ratio), 512)
+                img = img.resize(new_size, Image.LANCZOS)
+            images.append(img)
+
+        logger.info(f"Loaded {len(images)} images from {views_dir}")
+        return images
 
     def inference(self, input_dir: Path, output_dir: Path) -> dict:
         """
-        Run ReconViaGen inference on input images.
+        Run TRELLIS-VGGT inference on input images.
 
         Args:
-            input_dir: Directory containing views/ and depth/ subdirectories
-                       with view_00.png...view_05.png and depth_00.png...depth_05.png
-            output_dir: Directory to write mesh.obj, mesh.ply, texture.png
+            input_dir: Directory containing views/ subdirectory
+                       with view_00.png...view_N.png
+            output_dir: Directory to write mesh.glb, mesh.obj, mesh.ply
 
         Returns:
             dict with:
                 - status: 'success' or 'failed'
                 - error: Error message if failed
-                - mesh_path: Path to OBJ file if success
-                - texture_path: Path to texture if success
+                - mesh_path: Path to GLB file if success
+                - obj_path: Path to OBJ file if success
+                - ply_path: Path to PLY file if success
         """
+        # Import postprocessing_utils here to avoid import at module level
+        from trellis.utils import postprocessing_utils
+
         input_dir = Path(input_dir)
         output_dir = Path(output_dir)
 
         try:
-            # Step 1: Load and preprocess input images
+            # Step 1: Load input images
             self.report_progress(20, "Loading input images")
             views_dir = input_dir / "views"
-            depth_dir = input_dir / "depth"
 
-            if not views_dir.exists() or not depth_dir.exists():
+            if not views_dir.exists():
                 return {
                     'status': 'failed',
-                    'error': f"Input directory missing views/ or depth/ subdirectory"
+                    'error': "Input directory missing views/ subdirectory"
                 }
 
-            view_files = sorted(views_dir.glob("view_*.png"))
-            depth_files = sorted(depth_dir.glob("depth_*.png"))
-
-            if len(view_files) != 6 or len(depth_files) != 6:
+            images = self._load_images(views_dir)
+            if len(images) == 0:
                 return {
                     'status': 'failed',
-                    'error': f"Expected 6 view and 6 depth files, got {len(view_files)} views and {len(depth_files)} depth"
+                    'error': "No view images found in views/ directory"
                 }
 
-            logger.info(f"Found {len(view_files)} views and {len(depth_files)} depth images")
+            logger.info(f"Processing {len(images)} input images")
 
-            # Step 2: Preprocess images
-            self.report_progress(30, "Preprocessing images")
+            # Step 2: Run TRELLIS reconstruction
+            self.report_progress(30, "Running 3D reconstruction")
 
-            # STUB: In real implementation:
-            # images = self._load_images(view_files)
-            # depths = self._load_depths(depth_files)
-            # preprocessed = self._preprocess(images, depths)
+            if self._pipeline is None or not self._pipeline.is_loaded():
+                return {
+                    'status': 'failed',
+                    'error': "Model not loaded. Call load_weights() first."
+                }
 
-            # Step 3: Run model inference
-            self.report_progress(40, "Running reconstruction")
-            logger.info("Running ReconViaGen inference (STUB)")
-
-            # STUB: In real implementation:
-            # with torch.no_grad():
-            #     mesh_output = self._model(preprocessed)
-
-            # Simulate processing time (remove in real implementation)
-            import time
-            time.sleep(2)
-
-            self.report_progress(70, "Post-processing mesh")
-
-            # Step 4: Generate output mesh
-            # STUB: Create placeholder mesh for testing
-            output_dir.mkdir(parents=True, exist_ok=True)
-
-            # Create simple cube mesh as placeholder
-            verts, faces, texture, uvs = self._create_placeholder_mesh()
-
-            self.report_progress(80, "Exporting mesh files")
-
-            # Export using mesh_export service
-            export_result = save_mesh_both_formats(
-                verts=verts,
-                faces=faces,
-                texture_map=texture,
-                verts_uvs=uvs,
-                output_dir=output_dir,
-                mesh_name="mesh"
+            outputs, _, _ = self._pipeline.run(
+                images=images,
+                seed=42,
+                sparse_steps=30,
+                sparse_cfg=7.5,
+                slat_steps=12,
+                slat_cfg=3.0,
             )
 
-            # Step 5: Validate output
-            self.report_progress(90, "Validating output")
-            validation = validate_mesh_output(output_dir, "mesh")
+            self.report_progress(60, "Processing reconstruction output")
 
-            if not validation['valid']:
+            # Get Gaussian and mesh outputs
+            gs = outputs['gaussian'][0]
+            mesh = outputs['mesh'][0]
+
+            # Step 3: Export mesh using official to_glb pattern
+            self.report_progress(70, "Exporting mesh to GLB")
+            output_dir.mkdir(parents=True, exist_ok=True)
+
+            # Export to GLB with texture (official Stable-X pattern)
+            glb = postprocessing_utils.to_glb(
+                gs,
+                mesh,
+                simplify=0.95,       # Mesh simplification ratio
+                texture_size=1024    # Texture resolution
+            )
+
+            glb_path = output_dir / "mesh.glb"
+            glb.export(str(glb_path))
+            logger.info(f"Exported GLB to {glb_path}")
+
+            # Step 4: Validate GLB file size (>1KB means real geometry)
+            glb_size = glb_path.stat().st_size
+            if glb_size < 1024:
                 return {
                     'status': 'failed',
-                    'error': f"Output validation failed: {validation.get('error', 'Unknown error')}"
+                    'error': f"GLB file too small ({glb_size} bytes), may be invalid"
                 }
+            logger.info(f"GLB file size: {glb_size / 1024:.1f} KB")
+
+            # Step 5: Convert GLB to OBJ/PLY for compatibility
+            self.report_progress(80, "Converting to OBJ/PLY formats")
+
+            obj_path = output_dir / "mesh.obj"
+            ply_path = output_dir / "mesh.ply"
+
+            try:
+                import trimesh
+                # Load GLB and export to other formats
+                scene = trimesh.load(str(glb_path))
+                # Handle both single mesh and scene
+                if isinstance(scene, trimesh.Scene):
+                    # Combine all meshes in scene
+                    combined = trimesh.util.concatenate(
+                        [g for g in scene.geometry.values() if isinstance(g, trimesh.Trimesh)]
+                    )
+                else:
+                    combined = scene
+
+                # Export OBJ
+                combined.export(str(obj_path))
+                logger.info(f"Exported OBJ to {obj_path}")
+
+                # Export PLY
+                combined.export(str(ply_path))
+                logger.info(f"Exported PLY to {ply_path}")
+
+            except Exception as e:
+                logger.warning(f"GLB conversion failed, GLB is still available: {e}")
+                # GLB is the primary output, conversion failure is non-fatal
+                obj_path = None
+                ply_path = None
+
+            # Step 6: Validate mesh vertex count
+            self.report_progress(90, "Validating mesh output")
+            try:
+                import trimesh
+                mesh_check = trimesh.load(str(glb_path))
+                if isinstance(mesh_check, trimesh.Scene):
+                    total_verts = sum(
+                        g.vertices.shape[0] for g in mesh_check.geometry.values()
+                        if hasattr(g, 'vertices')
+                    )
+                else:
+                    total_verts = mesh_check.vertices.shape[0]
+
+                if total_verts < 1000:
+                    logger.warning(f"Mesh has only {total_verts} vertices, may be low quality")
+                else:
+                    logger.info(f"Mesh has {total_verts} vertices")
+
+            except Exception as e:
+                logger.warning(f"Could not verify vertex count: {e}")
 
             self.report_progress(95, "Cleanup")
 
             return {
                 'status': 'success',
-                'mesh_path': export_result['obj_path'],
-                'ply_path': export_result['ply_path'],
-                'texture_path': export_result.get('texture_path')
+                'mesh_path': str(glb_path),
+                'obj_path': str(obj_path) if obj_path else None,
+                'ply_path': str(ply_path) if ply_path else None,
+                'glb_size_kb': glb_size / 1024
             }
 
         except torch.cuda.OutOfMemoryError as e:
@@ -185,7 +259,7 @@ class ReconViaGenModel(BaseReconstructionModel):
             cleanup_gpu_memory()
             return {
                 'status': 'failed',
-                'error': "Out of GPU memory. The model requires more VRAM than available."
+                'error': "Out of GPU memory. TRELLIS requires ~16GB VRAM."
             }
         except Exception as e:
             logger.error(f"ReconViaGen inference failed: {e}", exc_info=True)
@@ -194,34 +268,12 @@ class ReconViaGenModel(BaseReconstructionModel):
                 'error': f"Model failed to process images: {str(e)}"
             }
 
-    def _create_placeholder_mesh(self):
-        """Create a simple cube mesh for testing (STUB)."""
-        # Simple cube vertices
-        verts = torch.tensor([
-            [-0.5, -0.5, -0.5], [0.5, -0.5, -0.5], [0.5, 0.5, -0.5], [-0.5, 0.5, -0.5],
-            [-0.5, -0.5, 0.5], [0.5, -0.5, 0.5], [0.5, 0.5, 0.5], [-0.5, 0.5, 0.5]
-        ], dtype=torch.float32)
+    def cleanup(self) -> None:
+        """Release GPU memory by unloading the TRELLIS pipeline."""
+        if self._pipeline is not None:
+            self._pipeline.cleanup()
+            self._pipeline = None
 
-        # Cube faces (triangulated)
-        faces = torch.tensor([
-            [0, 1, 2], [0, 2, 3],  # front
-            [4, 6, 5], [4, 7, 6],  # back
-            [0, 4, 5], [0, 5, 1],  # bottom
-            [2, 6, 7], [2, 7, 3],  # top
-            [0, 7, 4], [0, 3, 7],  # left
-            [1, 5, 6], [1, 6, 2],  # right
-        ], dtype=torch.long)
-
-        # Simple texture (solid color gradient)
-        texture = torch.zeros((256, 256, 3), dtype=torch.float32)
-        texture[:, :, 0] = 0.6  # Red channel
-        texture[:, :, 1] = 0.4  # Green channel
-        texture[:, :, 2] = 0.2  # Blue channel
-
-        # UV coordinates (simple mapping)
-        uvs = torch.tensor([
-            [0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0],
-            [0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0]
-        ], dtype=torch.float32)
-
-        return verts, faces, texture, uvs
+        # Call parent cleanup for additional memory release
+        super().cleanup()
+        logger.info("ReconViaGen model resources released")
