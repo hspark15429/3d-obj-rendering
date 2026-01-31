@@ -70,6 +70,17 @@ RUN git clone --recursive --depth 1 https://github.com/estheryang11/ReconViaGen.
 # CRITICAL: Set SPCONV_ALGO for spconv to work with TRELLIS
 ENV SPCONV_ALGO=native
 
+# Phase 3.1: nvdiffrec dependencies
+# tiny-cuda-nn - neural network primitives for fast optimization
+RUN pip install --no-cache-dir --no-build-isolation \
+    git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch
+
+# Clone nvdiffrec for reference (geometry and rendering modules)
+RUN git clone --depth 1 https://github.com/NVlabs/nvdiffrec.git /app/nvdiffrec_src
+
+# Add imageio for nvdiffrec image loading
+RUN pip install --no-cache-dir imageio imageio-ffmpeg
+
 # Copy and install remaining Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
