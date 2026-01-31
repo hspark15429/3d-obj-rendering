@@ -46,9 +46,9 @@
 
 ### Documentation
 
-- [ ] **DOC-01**: README.md with execution instructions and API usage examples
-- [ ] **DOC-02**: architecture.md explaining system design and key decisions
-- [ ] **DOC-03**: Example outputs included (3D results, preview images, quality JSON)
+- [x] **DOC-01**: README.md with execution instructions and API usage examples
+- [x] **DOC-02**: architecture.md explaining system design and key decisions
+- [x] **DOC-03**: Example outputs included (3D results, preview images, quality JSON)
 
 ## v2 Requirements (Deferred)
 
@@ -90,9 +90,9 @@
 | ERR-01 | Phase 5 | Complete |
 | ERR-02 | Phase 5 | Complete |
 | ERR-03 | Phase 5 | Complete |
-| DOC-01 | Phase 6 | Pending |
-| DOC-02 | Phase 6 | Pending |
-| DOC-03 | Phase 6 | Pending |
+| DOC-01 | Phase 6 | Complete |
+| DOC-02 | Phase 6 | Complete |
+| DOC-03 | Phase 6 | Complete |
 
 ---
 *Generated from requirements scoping session*
