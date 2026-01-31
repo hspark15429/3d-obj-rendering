@@ -10,28 +10,28 @@ See: .planning/PROJECT.md (updated 2026-01-30)
 ## Current Position
 
 Phase: 2 of 6 (Job Pipeline)
-Plan: 2 of 4 in current phase
+Plan: 3 of 4 in current phase
 Status: In progress
-Last activity: 2026-01-31 — Completed 02-02-PLAN.md
+Last activity: 2026-01-31 — Completed 02-03-PLAN.md
 
-Progress: [███░░░░░░░] 30% (3 of 10 plans complete)
+Progress: [████░░░░░░] 40% (4 of 10 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 3
+- Total plans completed: 4
 - Average duration: 6 min
-- Total execution time: 0.32 hours
+- Total execution time: 0.37 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 1. Foundation | 1 | 12min | 12min |
-| 2. Job Pipeline | 2 | 7min | 4min |
+| 2. Job Pipeline | 3 | 10min | 3min |
 
 **Recent Trend:**
-- Last 5 plans: 12min, 4min, 3min
+- Last 5 plans: 12min, 4min, 3min, 3min
 - Trend: Accelerating (Phase 2 plans smaller, focused)
 
 *Updated after each plan completion*
@@ -60,6 +60,11 @@ Recent decisions affecting current work:
 - 02-02: Field-level error tracking - FileValidationError includes field parameter
 - 02-02: File pointer reset - Critical seek(0) after validation for later reads
 - 02-02: 20MB/200MB limits - 20MB per file, 200MB total prevents DoS
+- 02-03: Two-step cancellation implementation - request_cancellation() sets pending flag, confirm_cancellation() activates it
+- 02-03: 1-hour TTL on cancellation flags - Automatic cleanup of abandoned requests
+- 02-03: Cancellation before each step - Check is_job_cancelled() before each of 6 processing steps for responsive cancellation
+- 02-03: Progress tracking via update_state - PROGRESS state with meta={'progress': %, 'step': name}
+- 02-03: File cleanup on cancel - delete_job_files() before returning cancelled status
 
 ### Pending Todos
 
@@ -71,6 +76,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-01-31
-Stopped at: Completed 02-02-PLAN.md (Phase 2, Plan 2 of 4)
+Last session: 2026-01-31T01:36:20Z
+Stopped at: Completed 02-03-PLAN.md (Phase 2, Plan 3 of 4)
 Resume file: None
