@@ -56,7 +56,7 @@ RUN pip install --no-cache-dir \
     https://github.com/Dao-AILab/flash-attention/releases/download/v2.7.0.post2/flash_attn-2.7.0.post2+cu12torch2.4cxx11abiFALSE-cp310-cp310-linux_x86_64.whl
 
 # Install transformers and einops for VGGT backbone
-RUN pip install --no-cache-dir transformers==4.46.3 einops==0.8.1
+RUN pip install --no-cache-dir transformers==4.46.3 einops==0.8.1 easydict
 
 # Install huggingface_hub for model downloads
 RUN pip install --no-cache-dir huggingface_hub==0.33.4
