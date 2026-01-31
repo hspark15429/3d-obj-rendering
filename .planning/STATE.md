@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-30)
 
 **Core value:** End-to-end working pipeline: Upload images, get back validated 3D meshes with quality reports. Everything runs with a single Docker command.
-**Current focus:** Phase 3 - Model Integration (In Progress)
+**Current focus:** Phase 3 - Model Integration (Complete)
 
 ## Current Position
 
 Phase: 3 of 6 (Model Integration)
-Plan: 3 of 4 in current phase
-Status: In progress
-Last activity: 2026-01-31 - Completed 03-03-PLAN.md
+Plan: 4 of 4 in current phase
+Status: Phase complete
+Last activity: 2026-01-31 - Completed 03-04-PLAN.md
 
-Progress: [████░░░░░░] 40% (8/20 plans complete)
+Progress: [█████░░░░░] 45% (9/20 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 8
+- Total plans completed: 9
 - Average duration: 5 min
-- Total execution time: 0.7 hours
+- Total execution time: 0.8 hours
 
 **By Phase:**
 
@@ -29,11 +29,11 @@ Progress: [████░░░░░░] 40% (8/20 plans complete)
 |-------|-------|-------|----------|
 | 1. Foundation | 1 | 12min | 12min |
 | 2. Job Pipeline | 4 | 18min | 5min |
-| 3. Model Integration | 3 | 8min | 3min |
+| 3. Model Integration | 4 | 16min | 4min |
 
 **Recent Trend:**
-- Last 5 plans: 3min, 8min, 3min, 2min, 3min
-- Trend: Fast infrastructure plans, model wrappers efficient
+- Last 5 plans: 8min, 3min, 2min, 3min, 8min
+- Trend: Consistent velocity, model integration efficient
 
 *Updated after each plan completion*
 
@@ -80,6 +80,9 @@ Recent decisions affecting current work:
 - 03-03: STUB implementations for both models - Official ReconViaGen code not released; enables integration testing
 - 03-03: Different placeholder meshes (cube vs sphere) - Distinguish model outputs visually during testing
 - 03-03: Progress reporting at multiple stages - Fine-grained feedback for long-running tasks
+- 03-04: Sequential execution for 'both' mode - Run ReconViaGen first, then nvdiffrec with VRAM cleanup between
+- 03-04: 2-hour soft timeout for 'both' mode - Extended timeout (7200s) for sequential model execution
+- 03-04: Progress tracking includes model info - current_model field shows which model is running
 
 ### Pending Todos
 
@@ -92,5 +95,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-01-31
-Stopped at: Completed 03-03-PLAN.md (Model Wrapper Implementations)
+Stopped at: Completed 03-04-PLAN.md (Pipeline Integration) - Phase 3 Complete
 Resume file: None
