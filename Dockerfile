@@ -36,8 +36,13 @@ RUN pip install --no-cache-dir \
 RUN pip install --no-cache-dir \
     "pytorch3d @ https://dl.fbaipublicfiles.com/pytorch3d/packaging/wheels/py310_cu118_pyt210/pytorch3d-0.7.5-cp310-cp310-linux_x86_64.whl"
 
+# Pin numpy<2 for nvdiffrast compatibility (NumPy 2.x breaks CUDA extensions)
+RUN pip install --no-cache-dir "numpy<2"
+
 # Install nvdiffrast (NVIDIA's differentiable rasterizer)
-# Requires --no-build-isolation to find PyTorch during CUDA extension build
+# - --no-build-isolation: find PyTorch during CUDA extension build
+# - TORCH_CUDA_ARCH_LIST: specify GPU architectures (no GPU during Docker build)
+ENV TORCH_CUDA_ARCH_LIST="7.0;7.5;8.0;8.6;8.9"
 RUN pip install --no-cache-dir --no-build-isolation git+https://github.com/NVlabs/nvdiffrast/
 
 # Copy and install remaining Python dependencies
