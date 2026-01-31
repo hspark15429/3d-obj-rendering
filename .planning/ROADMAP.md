@@ -30,10 +30,10 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. Container has working GPU access (nvidia-docker)
   3. User can verify API is running via GET /health endpoint
   4. FastAPI server accepts requests and returns responses
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] TBD (to be planned)
+- [ ] 01-01-PLAN.md — Docker infrastructure + FastAPI health endpoint with GPU validation
 
 ### Phase 2: Job Pipeline
 **Goal**: Users can submit jobs, check status, and cancel jobs through async queue
@@ -116,7 +116,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/TBD | Not started | - |
+| 1. Foundation | 0/1 | Planned | - |
 | 2. Job Pipeline | 0/TBD | Not started | - |
 | 3. Model Integration | 0/TBD | Not started | - |
 | 4. Quality & Preview | 0/TBD | Not started | - |
@@ -124,4 +124,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 6. Documentation | 0/TBD | Not started | - |
 
 ---
-*Last updated: 2026-01-30 - Initial roadmap created*
+*Last updated: 2026-01-31 - Phase 1 planned*
