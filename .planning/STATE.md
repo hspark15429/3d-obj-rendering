@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-30)
 ## Current Position
 
 Phase: 5 of 6 (Results & Error Handling)
-Plan: 2 of TBD in current phase
-Status: In progress
-Last activity: 2026-01-31 - Completed 05-02-PLAN.md
+Plan: 3 of 3 in current phase
+Status: Phase complete
+Last activity: 2026-01-31 - Completed 05-03-PLAN.md
 
-Progress: [█████████░] 95% (21/22 plans complete)
+Progress: [██████████] 100% (22/22 plans complete)
 
 ## Performance Metrics
 
@@ -33,11 +33,11 @@ Progress: [█████████░] 95% (21/22 plans complete)
 | 3.1 CUDA 12 Upgrade | 6 | 26min | 4min |
 | 4. Quality & Preview | 4 | 16min | 4min |
 
-| 5. Results & Error Handling | 2 | 5min | 2.5min |
+| 5. Results & Error Handling | 3 | 9min | 3min |
 
 **Recent Trend:**
-- Last 5 plans: 5min, 2min, 6min, 2min, 3min
-- Trend: Consistent velocity, Phase 5 in progress
+- Last 5 plans: 2min, 6min, 2min, 3min, 4min
+- Trend: Consistent velocity, Phase 5 complete
 
 *Updated after each plan completion*
 
@@ -127,6 +127,10 @@ Recent decisions affecting current work:
 - 05-02: Celery PENDING state = 404 (job never existed or expired)
 - 05-02: STARTED/PROGRESS = 409, missing output dir = 410
 - 05-02: StreamingResponse with BytesIO for ZIP downloads
+- 05-03: 422 status for validation errors in submit_job (consistent with main.py exception handler)
+- 05-03: torch.cuda.OutOfMemoryError maps to MODEL_VRAM_OOM, MemoryError to MODEL_OOM
+- 05-03: Quality threshold failures include actual and expected PSNR/SSIM values
+- 05-03: Task failure results include error_code, pipeline_stage, model fields
 
 ### Pending Todos
 
@@ -142,7 +146,7 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-01-31T11:04:48Z
-Stopped at: Completed 05-02-PLAN.md (Result Download)
+Last session: 2026-01-31T11:11:36Z
+Stopped at: Completed 05-03-PLAN.md (Error Handling Wiring)
 Resume file: None
-Next: Execute 05-03-PLAN.md (if exists) or continue Phase 5 plans
+Next: Phase 5 complete. Phase 6 (Documentation/Polish) if planned.
