@@ -1,3 +1,5 @@
+[English](README.md) | [한국어](README.ko.md)
+
 # 3D Object Reconstruction API
 
 Transform multi-view images into high-quality 3D meshes using state-of-the-art AI models. Upload 6 RGB images and depth renders, get back textured meshes with quality validation.
@@ -5,6 +7,11 @@ Transform multi-view images into high-quality 3D meshes using state-of-the-art A
 ## What It Does
 
 This system runs two AI reconstruction models (ReconViaGen and nvdiffrec) to generate textured 3D meshes from multi-view images. It handles long-running inference tasks asynchronously, validates output quality with PSNR and SSIM metrics, and provides preview renders from multiple angles. Submit a job via REST API, poll for status, and download complete results including meshes, textures, previews, and quality reports.
+
+## Example Output
+
+![Example Output 1](examples/output/example_output1.png)
+![Example Output 2](examples/output/example_output2.png)
 
 ## Prerequisites
 
