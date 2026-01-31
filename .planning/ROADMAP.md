@@ -79,11 +79,14 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. Docker base image upgraded to CUDA 12.1
   2. PyTorch upgraded to 2.4.1 with CUDA 12.1 support
-  3. ReconViaGen dependencies installed (spconv-cu120, xformers, flash_attn)
-  4. ReconViaGen model uses TRELLIS-VGGT pipeline for real inference
+  3. ReconViaGen dependencies installed (spconv-cu120, xformers, flash_attn, TRELLIS code)
+  4. ReconViaGen model uses TRELLIS-VGGT pipeline for real inference (MASt3R bundled within TRELLIS)
   5. nvdiffrec runs real optimization loop (not placeholder)
   6. Both models produce actual textured mesh outputs (not placeholder geometry)
   7. All existing tests pass with upgraded dependencies
+
+**Note on MASt3R**: The TRELLIS-VGGT pipeline bundles camera estimation (MASt3R/VGGT) internally. No separate MASt3R installation is needed - the Stable-X implementation includes all required components.
+
 **Plans**: 6 plans
 
 Plans:
@@ -154,4 +157,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 3.1 -> 4 -> 5 -> 6
 | 6. Documentation | 0/TBD | Not started | - |
 
 ---
-*Last updated: 2026-01-31 - Phase 3.1 planned (6 plans in 4 waves)*
+*Last updated: 2026-01-31 - Phase 3.1 planned (6 plans in 4 waves), MASt3R clarification added*
