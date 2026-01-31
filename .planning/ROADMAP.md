@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Foundation** - Docker environment with GPU support and basic API
 - [x] **Phase 2: Job Pipeline** - Async job queue infrastructure for long-running inference
 - [x] **Phase 3: Model Integration** - ReconViaGen and nvdiffrec model execution
-- [ ] **Phase 3.1: CUDA 12 Upgrade & Real Model Integration** - Upgrade infrastructure, integrate real models (INSERTED)
+- [x] **Phase 3.1: CUDA 12 Upgrade & Real Model Integration** - Upgrade infrastructure, integrate real models (INSERTED)
 - [ ] **Phase 4: Quality & Preview** - Metrics computation and result validation
 - [ ] **Phase 5: Results & Error Handling** - Complete API with robust error handling
 - [ ] **Phase 6: Documentation** - README, architecture docs, and examples
@@ -90,12 +90,12 @@ Plans:
 **Plans**: 6 plans
 
 Plans:
-- [ ] 03.1-01-PLAN.md — CUDA 12.1 + PyTorch 2.4.1 infrastructure upgrade
-- [ ] 03.1-02-PLAN.md — TRELLIS dependencies and pipeline wrapper
-- [ ] 03.1-03-PLAN.md — nvdiffrec dependencies and camera estimation
-- [ ] 03.1-04-PLAN.md — ReconViaGen real implementation (TRELLIS)
-- [ ] 03.1-05-PLAN.md — nvdiffrec real implementation (optimization loop)
-- [ ] 03.1-06-PLAN.md — Integration testing and verification
+- [x] 03.1-01-PLAN.md — CUDA 12.1 + PyTorch 2.4.1 infrastructure upgrade
+- [x] 03.1-02-PLAN.md — TRELLIS dependencies and pipeline wrapper
+- [x] 03.1-03-PLAN.md — nvdiffrec dependencies and camera estimation
+- [x] 03.1-04-PLAN.md — ReconViaGen real implementation (TRELLIS)
+- [x] 03.1-05-PLAN.md — nvdiffrec real implementation (optimization loop)
+- [x] 03.1-06-PLAN.md — Integration testing and verification
 
 ### Phase 4: Quality & Preview
 **Goal**: Results include quality metrics, status classification, and preview images
@@ -151,10 +151,10 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 3.1 -> 4 -> 5 -> 6
 | 1. Foundation | 1/1 | Complete | 2026-01-31 |
 | 2. Job Pipeline | 4/4 | Complete | 2026-01-31 |
 | 3. Model Integration | 4/4 | Complete | 2026-01-31 |
-| 3.1 CUDA 12 & Real Models | 0/6 | Planned | - |
+| 3.1 CUDA 12 & Real Models | 6/6 | Complete | 2026-01-31 |
 | 4. Quality & Preview | 0/TBD | Not started | - |
 | 5. Results & Error Handling | 0/TBD | Not started | - |
 | 6. Documentation | 0/TBD | Not started | - |
 
 ---
-*Last updated: 2026-01-31 - Phase 3.1 planned (6 plans in 4 waves), MASt3R clarification added*
+*Last updated: 2026-01-31 - Phase 3.1 complete, ready for Phase 4*
