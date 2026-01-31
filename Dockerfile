@@ -72,6 +72,8 @@ ENV SPCONV_ALGO=native
 
 # Phase 3.1: nvdiffrec dependencies
 # tiny-cuda-nn - neural network primitives for fast optimization
+# TCNN_CUDA_ARCHITECTURES required at build time (no GPU available during Docker build)
+ENV TCNN_CUDA_ARCHITECTURES="70;75;80;86;89;90"
 RUN pip install --no-cache-dir --no-build-isolation \
     git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch
 
