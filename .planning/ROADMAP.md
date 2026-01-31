@@ -125,10 +125,12 @@ Plans:
   3. Model failures (OOM, convergence) return error status with details
   4. System resource issues (disk, memory) handled gracefully
   5. All error scenarios return appropriate HTTP codes and messages
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] TBD (to be planned)
+- [ ] 05-01-PLAN.md — Error code taxonomy and global exception handlers
+- [ ] 05-02-PLAN.md — Result packager service and download endpoint
+- [ ] 05-03-PLAN.md — Structured errors for existing endpoints and tests
 
 ### Phase 6: Documentation
 **Goal**: Repository includes complete documentation and example outputs
@@ -156,8 +158,8 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 3.1 -> 4 -> 5 -> 6
 | 3. Model Integration | 4/4 | Complete | 2026-01-31 |
 | 3.1 CUDA 12 & Real Models | 6/6 | Complete | 2026-01-31 |
 | 4. Quality & Preview | 4/4 | Complete | 2026-01-31 |
-| 5. Results & Error Handling | 0/TBD | Not started | - |
+| 5. Results & Error Handling | 0/3 | Planned | - |
 | 6. Documentation | 0/TBD | Not started | - |
 
 ---
-*Last updated: 2026-01-31 - Phase 4 complete (4 plans executed)*
+*Last updated: 2026-01-31 - Phase 5 planned (3 plans)*
