@@ -26,13 +26,9 @@ Current model wrappers use STUB implementations that produce placeholder meshes.
 
 ## Solution
 
-For next milestone, consider:
+This is to be fixed by:
 
 1. **Upgrade infrastructure to CUDA 12 + PyTorch 2.4** - enables ReconViaGen but requires testing all dependencies
-
-2. **Integrate nvdiffrec first** - compatible now, can validate full pipeline with real model
-
-3. **Wait for official ReconViaGen release** - GAP-LAB-CUHK-SZ/ReconViaGen may have different requirements
 
 Key integration steps when ready:
 - Update Dockerfile base image to CUDA 12
