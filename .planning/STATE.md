@@ -9,29 +9,30 @@ See: .planning/PROJECT.md (updated 2026-01-30)
 
 ## Current Position
 
-Phase: 1 of 6 (Foundation)
-Plan: 1 of 1 in current phase
-Status: Phase complete
-Last activity: 2026-01-31 — Completed 01-01-PLAN.md
+Phase: 2 of 6 (Job Pipeline)
+Plan: 1 of 4 in current phase
+Status: In progress
+Last activity: 2026-01-31 — Completed 02-01-PLAN.md
 
-Progress: [█░░░░░░░░░] 10% (Phase 1 complete)
+Progress: [██░░░░░░░░] 20% (2 of 10 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 1
-- Average duration: 12 min
-- Total execution time: 0.2 hours
+- Total plans completed: 2
+- Average duration: 8 min
+- Total execution time: 0.27 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 1. Foundation | 1 | 12min | 12min |
+| 2. Job Pipeline | 1 | 4min | 4min |
 
 **Recent Trend:**
-- Last 5 plans: 12min
-- Trend: First plan complete
+- Last 5 plans: 12min, 4min
+- Trend: Accelerating (Phase 2 infrastructure setup efficient)
 
 *Updated after each plan completion*
 
@@ -49,6 +50,10 @@ Recent decisions affecting current work:
 - 01-01: Lifespan context manager over deprecated @app.on_event - Future-proof FastAPI code
 - 01-01: Fail-fast GPU validation (12GB minimum) - ReconViaGen/nvdiffrec require substantial VRAM
 - 01-01: Modern docker-compose GPU syntax - Forward-compatible with Compose V2
+- 02-01: Dual Redis DB architecture - DB 0 for Celery broker/results, DB 1 for app state (cancellation flags)
+- 02-01: Worker prefetch_multiplier=1 - Fair task distribution for long-running jobs
+- 02-01: Visibility timeout 14400s - 4-hour timeout for model inference without premature requeue
+- 02-01: Factory pattern for Celery app - Avoids circular imports with shared_task decorator
 
 ### Pending Todos
 
@@ -60,6 +65,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-01-31
-Stopped at: Completed 01-01-PLAN.md (Phase 1 complete)
+Last session: 2026-01-31 01:28:35 UTC
+Stopped at: Completed 02-01-PLAN.md (Celery infrastructure)
 Resume file: None
