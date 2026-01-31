@@ -16,6 +16,7 @@ from app.models import get_model, AVAILABLE_MODELS
 from app.services.job_manager import is_job_cancelled, clear_cancellation
 from app.services.file_handler import delete_job_files, get_job_path, STORAGE_ROOT
 from app.services.vram_manager import cleanup_gpu_memory
+from app.services.preview_generator import PreviewGenerator
 
 logger = logging.getLogger(__name__)
 
@@ -166,6 +167,65 @@ def process_reconstruction(
                 "texture": result.get('texture_path')
             }
 
+            # Run quality pipeline for completed model
+            # Per CONTEXT.md: quality metrics are required, if rendering fails job fails
+            try:
+                self.update_state(
+                    state="PROGRESS",
+                    meta={
+                        "progress": progress_offset + int(progress_scale * 0.8),
+                        "step": f"Computing quality metrics for {current_model}",
+                        "model": current_model,
+                        "model_index": model_index + 1,
+                        "total_models": total_models
+                    }
+                )
+
+                preview_gen = PreviewGenerator()
+
+                # Determine mesh path for quality pipeline (prefer GLB)
+                mesh_path = result.get('mesh_path')
+                if mesh_path:
+                    mesh_path = Path(mesh_path)
+                else:
+                    # Fallback to OBJ if GLB not available
+                    mesh_path = output_dir / "mesh.glb"
+                    if not mesh_path.exists():
+                        mesh_path = output_dir / "mesh.obj"
+
+                quality_result = preview_gen.generate_all(
+                    job_id=job_id,
+                    model=current_model,
+                    mesh_path=mesh_path,
+                    input_dir=input_dir,
+                    output_dir=output_dir,
+                    metadata={
+                        "input_file": "uploaded.zip",
+                        "duration": None  # TODO: track actual duration
+                    }
+                )
+
+                # Add quality info to outputs
+                outputs[current_model]["quality"] = quality_result["quality_report"]
+                outputs[current_model]["previews"] = {
+                    "textured": [str(p) for p in quality_result["previews"]["textured"]],
+                    "wireframe": [str(p) for p in quality_result["previews"]["wireframe"]]
+                }
+                outputs[current_model]["quality_status"] = quality_result["status"]
+
+                logger.info(f"Quality pipeline complete for {current_model}: status={quality_result['status']}")
+
+            except Exception as quality_error:
+                logger.error(f"Quality pipeline failed for {current_model}: {quality_error}", exc_info=True)
+                # Per CONTEXT.md: quality metrics are required, if rendering fails job fails
+                cleanup_gpu_memory()
+                return {
+                    "status": "failed",
+                    "job_id": job_id,
+                    "error": f"Quality metrics computation failed: {str(quality_error)}",
+                    "model": current_model
+                }
+
             # CRITICAL: Cleanup VRAM before next model (for 'both' mode)
             if model_index < total_models - 1:
                 logger.info(f"Cleaning up VRAM before next model")
@@ -193,11 +253,19 @@ def process_reconstruction(
         # Clear cancellation flags
         clear_cancellation(job_id)
 
+        # Determine overall quality status from last model
+        models_completed = list(outputs.keys())
+        overall_quality_status = "unknown"
+        if models_completed:
+            last_model = models_completed[-1]
+            overall_quality_status = outputs[last_model].get("quality_status", "unknown")
+
         return {
             "status": "completed",
             "job_id": job_id,
             "outputs": outputs,
-            "models_run": list(outputs.keys())
+            "models_run": models_completed,
+            "quality_status": overall_quality_status
         }
 
     except SoftTimeLimitExceeded:
