@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-01-30)
 ## Current Position
 
 Phase: 3 of 6 (Model Integration)
-Plan: 1 of 4 in current phase
+Plan: 2 of 4 in current phase
 Status: In progress
-Last activity: 2026-01-31 — Completed 03-01-PLAN.md
+Last activity: 2026-01-31 - Completed 03-02-PLAN.md
 
-Progress: [███░░░░░░░] 30% (Phase 3 plan 1 complete)
+Progress: [███░░░░░░░] 35% (7/20 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 6
+- Total plans completed: 7
 - Average duration: 5 min
-- Total execution time: 0.5 hours
+- Total execution time: 0.6 hours
 
 **By Phase:**
 
@@ -29,11 +29,11 @@ Progress: [███░░░░░░░] 30% (Phase 3 plan 1 complete)
 |-------|-------|-------|----------|
 | 1. Foundation | 1 | 12min | 12min |
 | 2. Job Pipeline | 4 | 18min | 5min |
-| 3. Model Integration | 1 | 3min | 3min |
+| 3. Model Integration | 2 | 5min | 3min |
 
 **Recent Trend:**
-- Last 5 plans: 4min, 3min, 3min, 8min, 3min
-- Trend: Consistent execution
+- Last 5 plans: 3min, 3min, 8min, 3min, 2min
+- Trend: Fast infrastructure plans, Docker config updates efficient
 
 *Updated after each plan completion*
 
@@ -72,6 +72,11 @@ Recent decisions affecting current work:
 - 03-01: Lazy pytorch3d import - Defer heavy import until function call
 - 03-01: Deferred vram_manager import in base.py - Avoids circular dependency
 - 03-01: Graceful CUDA absence - VRAM functions return error dict when CUDA unavailable
+- 03-02: PyTorch CUDA installed first via --index-url wheels - Ensures correct CUDA version matching
+- 03-02: PyTorch3D from pre-built wheel - Faster builds than source compilation
+- 03-02: nvdiffrast from git - No stable PyPI release
+- 03-02: 8GB shared memory for PyTorch - DataLoader multiprocessing needs /dev/shm
+- 03-02: Separate model-weights volume - Checkpoints persist across image rebuilds
 
 ### Pending Todos
 
@@ -84,5 +89,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-01-31
-Stopped at: Completed 03-01-PLAN.md (Model Infrastructure)
+Stopped at: Completed 03-02-PLAN.md (Docker PyTorch Infrastructure)
 Resume file: None
