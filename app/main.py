@@ -1,8 +1,9 @@
 """3D Reconstruction API - Foundation"""
 from contextlib import asynccontextmanager
 import logging
+from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from pynvml import (
     nvmlInit,
@@ -12,6 +13,9 @@ from pynvml import (
     nvmlDeviceGetMemoryInfo,
     nvmlSystemGetDriverVersion,
 )
+
+from app.api.jobs import router as jobs_router
+from app.services.file_handler import FileValidationError
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -26,6 +30,10 @@ gpu_state: dict = {}
 async def lifespan(app: FastAPI):
     """Validate GPU at startup, cleanup on shutdown."""
     logger.info("Starting GPU validation...")
+
+    # Ensure storage directory exists
+    Path("/app/storage/jobs").mkdir(parents=True, exist_ok=True)
+    logger.info("Storage directory initialized")
 
     try:
         nvmlInit()
@@ -63,6 +71,19 @@ app = FastAPI(
     version="0.1.0",
     lifespan=lifespan
 )
+
+# Include routers
+app.include_router(jobs_router)
+
+
+# Exception handlers
+@app.exception_handler(FileValidationError)
+async def file_validation_handler(request: Request, exc: FileValidationError):
+    """Handle file validation errors with 400 status."""
+    return JSONResponse(
+        status_code=400,
+        content={"error": exc.message, "field": exc.field}
+    )
 
 
 @app.get("/health")
