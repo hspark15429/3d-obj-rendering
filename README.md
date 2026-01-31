@@ -50,19 +50,19 @@ Expected response:
 ### 2. Submit a Reconstruction Job
 
 ```bash
-curl -X POST http://localhost:8000/jobs \
-  -F "multi_views[]=@input/multi_views/front.png" \
-  -F "multi_views[]=@input/multi_views/back.png" \
-  -F "multi_views[]=@input/multi_views/left.png" \
-  -F "multi_views[]=@input/multi_views/right.png" \
-  -F "multi_views[]=@input/multi_views/top.png" \
-  -F "multi_views[]=@input/multi_views/bottom.png" \
-  -F "depth_renders[]=@input/depth_renders/front.png" \
-  -F "depth_renders[]=@input/depth_renders/back.png" \
-  -F "depth_renders[]=@input/depth_renders/left.png" \
-  -F "depth_renders[]=@input/depth_renders/right.png" \
-  -F "depth_renders[]=@input/depth_renders/top.png" \
-  -F "depth_renders[]=@input/depth_renders/bottom.png" \
+curl -X POST http://localhost:8000/jobs/ \
+  -F "views=@input/multi_views/front.png" \
+  -F "views=@input/multi_views/back.png" \
+  -F "views=@input/multi_views/left.png" \
+  -F "views=@input/multi_views/right.png" \
+  -F "views=@input/multi_views/top.png" \
+  -F "views=@input/multi_views/bottom.png" \
+  -F "depth_renders=@input/depth_renders/front.png" \
+  -F "depth_renders=@input/depth_renders/back.png" \
+  -F "depth_renders=@input/depth_renders/left.png" \
+  -F "depth_renders=@input/depth_renders/right.png" \
+  -F "depth_renders=@input/depth_renders/top.png" \
+  -F "depth_renders=@input/depth_renders/bottom.png" \
   -F "model=reconviagen"
 ```
 
@@ -78,7 +78,6 @@ Response:
 **Model options:**
 - `reconviagen` - TRELLIS-VGGT model (faster, good for general objects)
 - `nvdiffrec` - nvdiffrec differentiable renderer (slower, higher quality)
-- `both` - Run both models sequentially (takes 2x time)
 
 ### 3. Check Job Status
 

@@ -1,0 +1,28 @@
+{
+  "job_id": "poxv1ikj",
+  "model": "reconviagen",
+  "status": "failure",
+  "summary": "Reconstruction quality: Failure (PSNR 12.9 dB, SSIM 0.84)",
+  "metrics": {
+    "psnr": 12.87025310817579,
+    "ssim": 0.8422987957795461,
+    "depth_mae": 0.27607832352320355,
+    "depth_rmse": 0.3010217472910881
+  },
+  "thresholds": {
+    "psnr_normal": 25.0,
+    "psnr_warning": 20.0,
+    "ssim_normal": 0.85,
+    "ssim_warning": 0.75
+  },
+  "metadata": {
+    "timestamp": "2026-01-31T13:38:26.806087Z",
+    "input_file": "uploaded.zip",
+    "processing_duration_sec": null,
+    "image_resolution": [
+      2048,
+      2048
+    ],
+    "num_views": 6
+  }
+}
