@@ -66,7 +66,7 @@ RUN pip install --no-cache-dir transformers==4.46.3 einops==0.8.1
 RUN pip install --no-cache-dir \
     easydict \
     kornia==0.8.0 \
-    timm==0.6.7 \
+    "timm>=0.9.0" \
     opencv-python-headless \
     rembg==2.0.60 \
     xatlas==0.0.9 \
