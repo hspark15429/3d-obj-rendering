@@ -12,7 +12,7 @@ This roadmap delivers a Docker-based 3D reconstruction pipeline in 6 phases, pro
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Foundation** - Docker environment with GPU support and basic API
+- [x] **Phase 1: Foundation** - Docker environment with GPU support and basic API
 - [ ] **Phase 2: Job Pipeline** - Async job queue infrastructure for long-running inference
 - [ ] **Phase 3: Model Integration** - ReconViaGen and nvdiffrec model execution
 - [ ] **Phase 4: Quality & Preview** - Metrics computation and result validation
@@ -33,7 +33,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 1 plan
 
 Plans:
-- [ ] 01-01-PLAN.md — Docker infrastructure + FastAPI health endpoint with GPU validation
+- [x] 01-01-PLAN.md — Docker infrastructure + FastAPI health endpoint with GPU validation
 
 ### Phase 2: Job Pipeline
 **Goal**: Users can submit jobs, check status, and cancel jobs through async queue
@@ -116,7 +116,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/1 | Planned | - |
+| 1. Foundation | 1/1 | ✓ Complete | 2026-01-31 |
 | 2. Job Pipeline | 0/TBD | Not started | - |
 | 3. Model Integration | 0/TBD | Not started | - |
 | 4. Quality & Preview | 0/TBD | Not started | - |
@@ -124,4 +124,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 6. Documentation | 0/TBD | Not started | - |
 
 ---
-*Last updated: 2026-01-31 - Phase 1 planned*
+*Last updated: 2026-01-31 - Phase 1 complete*

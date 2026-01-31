@@ -12,7 +12,7 @@
 - [ ] **API-02**: User can check job status (queued/processing/completed/failed) by job ID
 - [ ] **API-03**: User can download job results (mesh, textures, preview images, quality report) by job ID
 - [ ] **API-04**: User can cancel a running or queued job by job ID
-- [ ] **API-05**: User can check API health via GET /health endpoint
+- [x] **API-05**: User can check API health via GET /health endpoint
 
 ### 3D Reconstruction Models
 
@@ -34,8 +34,8 @@
 
 ### Deployment
 
-- [ ] **DEPLOY-01**: System runs in Docker container with GPU support (nvidia-docker)
-- [ ] **DEPLOY-02**: Entire system starts with single command (docker-compose up)
+- [x] **DEPLOY-01**: System runs in Docker container with GPU support (nvidia-docker)
+- [x] **DEPLOY-02**: Entire system starts with single command (docker-compose up)
 - [ ] **DEPLOY-03**: System uses async job queue for long-running inference tasks
 
 ### Error Handling
@@ -74,7 +74,7 @@
 | API-02 | Phase 2 | Pending |
 | API-03 | Phase 5 | Pending |
 | API-04 | Phase 2 | Pending |
-| API-05 | Phase 1 | Pending |
+| API-05 | Phase 1 | Complete |
 | MODEL-01 | Phase 3 | Pending |
 | MODEL-02 | Phase 3 | Pending |
 | MODEL-03 | Phase 3 | Pending |
@@ -84,8 +84,8 @@
 | QUAL-04 | Phase 4 | Pending |
 | OUT-01 | Phase 3 | Pending |
 | OUT-02 | Phase 4 | Pending |
-| DEPLOY-01 | Phase 1 | Pending |
-| DEPLOY-02 | Phase 1 | Pending |
+| DEPLOY-01 | Phase 1 | Complete |
+| DEPLOY-02 | Phase 1 | Complete |
 | DEPLOY-03 | Phase 2 | Pending |
 | ERR-01 | Phase 5 | Pending |
 | ERR-02 | Phase 5 | Pending |
