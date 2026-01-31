@@ -79,9 +79,15 @@ RUN pip install --no-cache-dir \
     pymeshfix \
     dreamsim
 
-# Clone utils3d from GitHub (TRELLIS dependency)
+# Install diff_gaussian_rasterization from pre-built wheel (Gaussian splatting renderer)
+RUN pip install --no-cache-dir \
+    "https://huggingface.co/spaces/JeffreyXiang/TRELLIS/resolve/main/wheels/diff_gaussian_rasterization-0.0.0-cp310-cp310-linux_x86_64.whl?download=true"
+
+# Clone utils3d from GitHub at specific commit (TRELLIS dependency)
 # Note: Can't pip install due to broken pyproject.toml metadata
-RUN git clone --depth 1 https://github.com/EasternJournalist/utils3d.git /app/utils3d_src
+# CRITICAL: Must use commit 9a4eb15e which has perspective_from_fov_xy function
+RUN git clone https://github.com/EasternJournalist/utils3d.git /app/utils3d_src && \
+    cd /app/utils3d_src && git checkout 9a4eb15e4021b67b12c460c7057d642626897ec8
 
 # Install huggingface_hub for model downloads
 RUN pip install --no-cache-dir huggingface_hub==0.33.4

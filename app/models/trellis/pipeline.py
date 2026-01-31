@@ -65,6 +65,11 @@ class TrellisPipelineWrapper:
                 self._pipeline = TrellisVGGTTo3DPipeline.from_pretrained(self._model_id)
 
             self._pipeline.to(self._device)
+            # CRITICAL: VGGT_model is not part of self.models, so Pipeline.to() doesn't move it
+            # We must explicitly move it to the target device
+            if hasattr(self._pipeline, 'VGGT_model') and self._pipeline.VGGT_model is not None:
+                self._pipeline.VGGT_model.to(self._device)
+                logger.info(f"Moved VGGT_model to {self._device}")
             self._loaded = True
             logger.info("TRELLIS pipeline loaded successfully")
 
@@ -109,7 +114,7 @@ class TrellisPipelineWrapper:
             image=images,
             seed=seed,
             formats=["gaussian", "mesh"],
-            preprocess_image=False,  # Images already preprocessed
+            preprocess_image=True,  # Let pipeline handle preprocessing
             sparse_structure_sampler_params={
                 "steps": sparse_steps,
                 "cfg_strength": sparse_cfg

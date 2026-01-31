@@ -1,5 +1,5 @@
 """
-Mesh export service using PyTorch3D.
+Mesh export service using trimesh.
 
 Exports meshes in both OBJ (with MTL and texture) and PLY formats.
 Provides validation utilities for mesh output files.
@@ -11,6 +11,7 @@ from typing import Optional
 import torch
 from PIL import Image
 import numpy as np
+import trimesh
 
 logger = logging.getLogger(__name__)
 
@@ -37,61 +38,56 @@ def save_mesh_both_formats(
     Returns:
         dict with 'obj_path', 'ply_path', 'texture_path' (if texture provided)
     """
-    from pytorch3d.io import save_obj, save_ply
-
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
     result = {}
 
-    # Ensure tensors are on CPU for file I/O
-    verts = verts.cpu() if verts.is_cuda else verts
-    faces = faces.cpu() if faces.is_cuda else faces
+    # Ensure tensors are on CPU and convert to numpy
+    verts_np = verts.cpu().numpy() if verts.is_cuda else verts.numpy()
+    faces_np = faces.cpu().numpy() if faces.is_cuda else faces.numpy()
 
     obj_path = output_dir / f"{mesh_name}.obj"
     ply_path = output_dir / f"{mesh_name}.ply"
 
+    # Create base trimesh
+    mesh = trimesh.Trimesh(vertices=verts_np, faces=faces_np)
+
     # Save OBJ with texture if provided
     if texture_map is not None and verts_uvs is not None:
-        texture_map = texture_map.cpu() if texture_map.is_cuda else texture_map
-        verts_uvs = verts_uvs.cpu() if verts_uvs.is_cuda else verts_uvs
+        texture_map_np = texture_map.cpu().numpy() if texture_map.is_cuda else texture_map.numpy()
+        verts_uvs_np = verts_uvs.cpu().numpy() if verts_uvs.is_cuda else verts_uvs.numpy()
 
-        # PyTorch3D save_obj with texture
-        save_obj(
-            f=str(obj_path),
-            verts=verts,
-            faces=faces,
-            verts_uvs=verts_uvs,
-            faces_uvs=faces,  # Assumes 1:1 vertex-to-UV mapping
-            texture_map=texture_map,
-            decimal_places=6
-        )
-
-        # Texture is saved automatically as mesh_name.png by save_obj
+        # Save texture image
         texture_path = output_dir / f"{mesh_name}.png"
+        texture_img = (texture_map_np * 255).astype(np.uint8)
+        Image.fromarray(texture_img).save(str(texture_path))
         result['texture_path'] = str(texture_path)
 
+        # Create material with texture
+        material = trimesh.visual.material.SimpleMaterial(
+            image=Image.fromarray(texture_img)
+        )
+
+        # Create TextureVisuals with UVs
+        visuals = trimesh.visual.TextureVisuals(
+            uv=verts_uvs_np,
+            material=material
+        )
+        mesh.visual = visuals
+
+        # Export OBJ with MTL
+        mesh.export(str(obj_path), file_type='obj')
         logger.info(f"Saved OBJ with texture: {obj_path}")
     else:
         # Save OBJ without texture
-        save_obj(
-            f=str(obj_path),
-            verts=verts,
-            faces=faces,
-            decimal_places=6
-        )
+        mesh.export(str(obj_path), file_type='obj')
         logger.info(f"Saved OBJ without texture: {obj_path}")
 
     result['obj_path'] = str(obj_path)
 
     # Save PLY (binary format for smaller files)
-    save_ply(
-        f=str(ply_path),
-        verts=verts,
-        faces=faces,
-        ascii=False,
-        decimal_places=6
-    )
+    mesh.export(str(ply_path), file_type='ply')
     result['ply_path'] = str(ply_path)
 
     logger.info(f"Saved PLY: {ply_path}")
