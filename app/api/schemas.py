@@ -3,7 +3,7 @@ Pydantic schemas for API requests and responses.
 """
 from datetime import datetime
 from enum import Enum
-from typing import Literal, Optional
+from typing import Any, Literal, Optional
 
 from pydantic import BaseModel, Field
 
@@ -98,19 +98,37 @@ class CancelResponse(BaseModel):
     }
 
 
-class ErrorResponse(BaseModel):
-    """Error response format."""
-    error: str = Field(..., description="Error type or code")
-    detail: Optional[str] = Field(None, description="Detailed error message")
-    fields: Optional[dict[str, str]] = Field(None, description="Field-level validation errors")
+class ErrorDetail(BaseModel):
+    """Structured error detail per CONTEXT.md format."""
+    code: str = Field(..., description="Error code (e.g., VALIDATION_FAILED)")
+    message: str = Field(..., description="Human-readable error message")
+    details: dict[str, Any] = Field(default_factory=dict, description="Additional context")
+    suggestion: str = Field(..., description="Actionable fix hint")
 
     model_config = {
         "json_schema_extra": {
             "example": {
-                "error": "ValidationError",
-                "detail": "Invalid file upload",
-                "fields": {
-                    "views": "Expected 6 files, got 5"
+                "code": "VALIDATION_FAILED",
+                "message": "Invalid file upload",
+                "details": {"field": "views", "expected": 6, "got": 5},
+                "suggestion": "Fix the validation errors and try again."
+            }
+        }
+    }
+
+
+class ErrorResponse(BaseModel):
+    """Error response wrapper."""
+    error: ErrorDetail
+
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "error": {
+                    "code": "VALIDATION_FAILED",
+                    "message": "Invalid file upload",
+                    "details": {"field": "views", "expected": 6, "got": 5},
+                    "suggestion": "Fix the validation errors and try again."
                 }
             }
         }

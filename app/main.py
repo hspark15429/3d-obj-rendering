@@ -3,7 +3,8 @@ from contextlib import asynccontextmanager
 import logging
 from pathlib import Path
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from pynvml import (
     nvmlInit,
@@ -15,6 +16,7 @@ from pynvml import (
 )
 
 from app.api.jobs import router as jobs_router
+from app.api.error_codes import ErrorCode, make_error_detail
 from app.services.file_handler import FileValidationError
 
 logger = logging.getLogger(__name__)
@@ -79,10 +81,83 @@ app.include_router(jobs_router)
 # Exception handlers
 @app.exception_handler(FileValidationError)
 async def file_validation_handler(request: Request, exc: FileValidationError):
-    """Handle file validation errors with 400 status."""
+    """Handle file validation errors with structured format (422 status)."""
+    # Map common validation errors to specific error codes
+    code = ErrorCode.VALIDATION_FAILED
+    if "too large" in exc.message.lower() or "exceeds" in exc.message.lower():
+        code = ErrorCode.FILE_TOO_LARGE
+    elif "format" in exc.message.lower() or "png" in exc.message.lower():
+        code = ErrorCode.INVALID_FILE_FORMAT
+    elif "expected" in exc.message.lower() and "files" in exc.message.lower():
+        code = ErrorCode.INVALID_FILE_COUNT
+
+    error_detail = make_error_detail(
+        code=code,
+        message=exc.message,
+        details={"field": exc.field} if exc.field else {}
+    )
     return JSONResponse(
-        status_code=400,
-        content={"error": exc.message, "field": exc.field}
+        status_code=422,
+        content={"error": error_detail}
+    )
+
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    """Format all HTTPException as structured error response."""
+    # If exc.detail is already a dict with our structure, use it
+    if isinstance(exc.detail, dict) and "code" in exc.detail:
+        error_detail = exc.detail
+    else:
+        # Wrap in UNKNOWN_ERROR structure
+        error_detail = make_error_detail(
+            code=ErrorCode.UNKNOWN_ERROR,
+            message=str(exc.detail),
+            details={}
+        )
+
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"error": error_detail}
+    )
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    """Format Pydantic validation errors as structured response."""
+    # Extract field-level errors
+    field_errors = {}
+    for error in exc.errors():
+        field_path = ".".join(str(loc) for loc in error["loc"])
+        field_errors[field_path] = {
+            "message": error["msg"],
+            "type": error["type"]
+        }
+
+    error_detail = make_error_detail(
+        code=ErrorCode.VALIDATION_FAILED,
+        message="Request validation failed",
+        details={"fields": field_errors, "error_count": len(field_errors)}
+    )
+    return JSONResponse(
+        status_code=422,
+        content={"error": error_detail}
+    )
+
+
+@app.exception_handler(Exception)
+async def generic_exception_handler(request: Request, exc: Exception):
+    """Handle unhandled exceptions with structured format (500 status)."""
+    logger.error(f"Unhandled exception: {exc}", exc_info=True)
+
+    error_detail = make_error_detail(
+        code=ErrorCode.UNKNOWN_ERROR,
+        message="An internal server error occurred",
+        details={}  # Don't expose internal details for security
+    )
+    return JSONResponse(
+        status_code=500,
+        content={"error": error_detail}
     )
 
 
