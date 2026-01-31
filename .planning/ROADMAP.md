@@ -63,10 +63,13 @@ Plans:
   3. Jobs complete successfully with OBJ/PLY and texture files
   4. Model weights are pre-downloaded in Docker image (no runtime downloads)
   5. Both models run sequentially without VRAM overflow
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] TBD (to be planned)
+- [ ] 03-01-PLAN.md — Base model interface, VRAM manager, mesh export service
+- [ ] 03-02-PLAN.md — Docker + PyTorch ecosystem dependencies
+- [ ] 03-03-PLAN.md — ReconViaGen and nvdiffrec model wrappers
+- [ ] 03-04-PLAN.md — Task integration and E2E verification
 
 ### Phase 4: Quality & Preview
 **Goal**: Results include quality metrics, status classification, and preview images
@@ -121,10 +124,10 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 |-------|----------------|--------|-----------|
 | 1. Foundation | 1/1 | Complete | 2026-01-31 |
 | 2. Job Pipeline | 4/4 | Complete | 2026-01-31 |
-| 3. Model Integration | 0/TBD | Not started | - |
+| 3. Model Integration | 0/4 | Planned | - |
 | 4. Quality & Preview | 0/TBD | Not started | - |
 | 5. Results & Error Handling | 0/TBD | Not started | - |
 | 6. Documentation | 0/TBD | Not started | - |
 
 ---
-*Last updated: 2026-01-31 - Phase 2 complete (4/4 plans)*
+*Last updated: 2026-01-31 - Phase 3 planned (4 plans in 3 waves)*
