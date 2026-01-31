@@ -29,6 +29,7 @@ numpy>=1.24.0,<2
 trimesh>=4.0.0
 Pillow>=10.0.0
 scipy>=1.11.0
+scikit-image>=0.26.0
 
 # Note: nvdiffrast installed from git in Dockerfile due to CUDA extension build
 # PyTorch3D removed in Phase 3.1 (cu118 wheel incompatible with cu121)
