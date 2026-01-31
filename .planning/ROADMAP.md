@@ -141,10 +141,12 @@ Plans:
   2. architecture.md explains system design and key decisions
   3. Example outputs included (3D meshes, previews, quality JSON)
   4. User can run system from documentation alone (no external knowledge)
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] TBD (to be planned)
+- [ ] 06-01-PLAN.md — Core reference docs (architecture.md, API.md)
+- [ ] 06-02-PLAN.md — README.md with quick-start and workflow examples
+- [ ] 06-03-PLAN.md — Examples directory with input/output samples
 
 ## Progress
 
@@ -159,7 +161,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 3.1 -> 4 -> 5 -> 6
 | 3.1 CUDA 12 & Real Models | 6/6 | Complete | 2026-01-31 |
 | 4. Quality & Preview | 4/4 | Complete | 2026-01-31 |
 | 5. Results & Error Handling | 3/3 | Complete | 2026-01-31 |
-| 6. Documentation | 0/TBD | Not started | - |
+| 6. Documentation | 0/3 | Not started | - |
 
 ---
-*Last updated: 2026-01-31 - Phase 5 complete (3 plans)*
+*Last updated: 2026-01-31 - Phase 6 planned (3 plans in 2 waves)*
