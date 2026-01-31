@@ -2,7 +2,7 @@
 
 **Project:** 3D Object Reconstruction API
 **Version:** v1
-**Last updated:** 2026-01-30
+**Last updated:** 2026-01-31
 
 ## v1 Requirements
 
@@ -16,21 +16,21 @@
 
 ### 3D Reconstruction Models
 
-- [~] **MODEL-01**: System can run ReconViaGen model on multi-view RGB + depth input to produce textured mesh *(STUB: pipeline ready, real model pending CUDA 12 upgrade)*
-- [~] **MODEL-02**: System can run nvdiffrec model on multi-view RGB + depth input to produce textured mesh *(STUB: pipeline ready, real model pending)*
+- [x] **MODEL-01**: System can run ReconViaGen model on multi-view RGB + depth input to produce textured mesh
+- [x] **MODEL-02**: System can run nvdiffrec model on multi-view RGB + depth input to produce textured mesh
 - [x] **MODEL-03**: User can select which model to run when submitting a job
 
 ### Quality Validation
 
-- [ ] **QUAL-01**: System computes PSNR metric for reconstruction quality
-- [ ] **QUAL-02**: System computes SSIM metric for reconstruction quality
-- [ ] **QUAL-03**: System classifies result status as normal/warning/failure based on quality thresholds
-- [ ] **QUAL-04**: System saves quality metrics and status to JSON file with results
+- [x] **QUAL-01**: System computes PSNR metric for reconstruction quality
+- [x] **QUAL-02**: System computes SSIM metric for reconstruction quality
+- [x] **QUAL-03**: System classifies result status as normal/warning/failure based on quality thresholds
+- [x] **QUAL-04**: System saves quality metrics and status to JSON file with results
 
 ### Output & Preview
 
 - [x] **OUT-01**: System generates textured mesh output (OBJ/PLY with texture files)
-- [ ] **OUT-02**: System generates static preview images from multiple angles
+- [x] **OUT-02**: System generates static preview images from multiple angles
 
 ### Deployment
 
@@ -75,15 +75,15 @@
 | API-03 | Phase 5 | Pending |
 | API-04 | Phase 2 | Complete |
 | API-05 | Phase 1 | Complete |
-| MODEL-01 | Phase 3 | STUB (pipeline ready) |
-| MODEL-02 | Phase 3 | STUB (pipeline ready) |
+| MODEL-01 | Phase 3.1 | Complete |
+| MODEL-02 | Phase 3.1 | Complete |
 | MODEL-03 | Phase 3 | Complete |
-| QUAL-01 | Phase 4 | Pending |
-| QUAL-02 | Phase 4 | Pending |
-| QUAL-03 | Phase 4 | Pending |
-| QUAL-04 | Phase 4 | Pending |
+| QUAL-01 | Phase 4 | Complete |
+| QUAL-02 | Phase 4 | Complete |
+| QUAL-03 | Phase 4 | Complete |
+| QUAL-04 | Phase 4 | Complete |
 | OUT-01 | Phase 3 | Complete |
-| OUT-02 | Phase 4 | Pending |
+| OUT-02 | Phase 4 | Complete |
 | DEPLOY-01 | Phase 1 | Complete |
 | DEPLOY-02 | Phase 1 | Complete |
 | DEPLOY-03 | Phase 2 | Complete |
