@@ -9,6 +9,7 @@ import shutil
 from pathlib import Path
 from typing import Literal
 
+import torch
 from celery import shared_task
 from celery.exceptions import SoftTimeLimitExceeded
 
@@ -17,6 +18,7 @@ from app.services.job_manager import is_job_cancelled, clear_cancellation
 from app.services.file_handler import delete_job_files, get_job_path, STORAGE_ROOT
 from app.services.vram_manager import cleanup_gpu_memory
 from app.services.preview_generator import PreviewGenerator
+from app.api.error_codes import ErrorCode
 
 logger = logging.getLogger(__name__)
 
@@ -135,6 +137,38 @@ def process_reconstruction(
                 # Cleanup model resources
                 model.cleanup()
 
+            except torch.cuda.OutOfMemoryError as oom_error:
+                logger.error(f"GPU VRAM OOM during {current_model}: {oom_error}", exc_info=True)
+                model.cleanup()
+                cleanup_gpu_memory()
+
+                return {
+                    "status": "failed",
+                    "job_id": job_id,
+                    "error_code": ErrorCode.MODEL_VRAM_OOM.value,
+                    "error": f"GPU out of VRAM during {current_model} inference",
+                    "details": {
+                        "model": current_model,
+                        "pipeline_stage": "inference"
+                    }
+                }
+
+            except MemoryError as mem_error:
+                logger.error(f"System OOM during {current_model}: {mem_error}", exc_info=True)
+                model.cleanup()
+                cleanup_gpu_memory()
+
+                return {
+                    "status": "failed",
+                    "job_id": job_id,
+                    "error_code": ErrorCode.MODEL_OOM.value,
+                    "error": "System out of memory",
+                    "details": {
+                        "model": current_model,
+                        "pipeline_stage": "inference"
+                    }
+                }
+
             except Exception as model_error:
                 logger.error(f"Model {current_model} failed: {model_error}", exc_info=True)
                 model.cleanup()
@@ -144,8 +178,12 @@ def process_reconstruction(
                 return {
                     "status": "failed",
                     "job_id": job_id,
+                    "error_code": ErrorCode.MODEL_FAILED.value,
                     "error": f"Model failed to process images",
-                    "model": current_model
+                    "details": {
+                        "model": current_model,
+                        "pipeline_stage": "inference"
+                    }
                 }
 
             # Check model result
@@ -156,8 +194,12 @@ def process_reconstruction(
                 return {
                     "status": "failed",
                     "job_id": job_id,
+                    "error_code": ErrorCode.MODEL_FAILED.value,
                     "error": result.get('error', 'Unknown model error'),
-                    "model": current_model
+                    "details": {
+                        "model": current_model,
+                        "pipeline_stage": "inference"
+                    }
                 }
 
             # Store output paths
@@ -205,6 +247,33 @@ def process_reconstruction(
                     }
                 )
 
+                # Check for quality threshold failure
+                if quality_result["status"] == "failure":
+                    quality_report = quality_result["quality_report"]
+                    metrics = quality_report.get("metrics", {})
+                    thresholds = quality_report.get("thresholds", {})
+
+                    logger.error(f"Quality threshold failed for {current_model}: PSNR={metrics.get('psnr')}, SSIM={metrics.get('ssim')}")
+                    cleanup_gpu_memory()
+                    return {
+                        "status": "failed",
+                        "job_id": job_id,
+                        "error_code": ErrorCode.QUALITY_THRESHOLD_FAILED.value,
+                        "error": "Reconstruction quality below threshold",
+                        "details": {
+                            "model": current_model,
+                            "pipeline_stage": "quality_metrics",
+                            "psnr": {
+                                "actual": metrics.get("psnr", 0.0),
+                                "threshold": thresholds.get("psnr_warning", 20.0)
+                            },
+                            "ssim": {
+                                "actual": metrics.get("ssim", 0.0),
+                                "threshold": thresholds.get("ssim_warning", 0.75)
+                            }
+                        }
+                    }
+
                 # Add quality info to outputs
                 outputs[current_model]["quality"] = quality_result["quality_report"]
                 outputs[current_model]["previews"] = {
@@ -222,8 +291,12 @@ def process_reconstruction(
                 return {
                     "status": "failed",
                     "job_id": job_id,
+                    "error_code": ErrorCode.MODEL_FAILED.value,
                     "error": f"Quality metrics computation failed: {str(quality_error)}",
-                    "model": current_model
+                    "details": {
+                        "model": current_model,
+                        "pipeline_stage": "quality_metrics"
+                    }
                 }
 
             # CRITICAL: Cleanup VRAM before next model (for 'both' mode)
@@ -275,7 +348,11 @@ def process_reconstruction(
         return {
             "status": "failed",
             "job_id": job_id,
-            "error": "Job exceeded time limit"
+            "error_code": ErrorCode.MODEL_FAILED.value,
+            "error": "Job exceeded time limit",
+            "details": {
+                "pipeline_stage": "timeout"
+            }
         }
 
     except Exception as e:
@@ -284,5 +361,7 @@ def process_reconstruction(
         return {
             "status": "failed",
             "job_id": job_id,
-            "error": "An unexpected error occurred"
+            "error_code": ErrorCode.MODEL_FAILED.value,
+            "error": "An unexpected error occurred",
+            "details": {}
         }

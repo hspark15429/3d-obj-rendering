@@ -87,9 +87,23 @@ async def submit_job(
     try:
         await validate_upload_files(views, depth_renders)
     except FileValidationError as e:
+        # Map FileValidationError to specific error codes based on message
+        if "Expected" in e.message and "files" in e.message:
+            code = ErrorCode.INVALID_FILE_COUNT
+        elif "exceeds maximum size" in e.message:
+            code = ErrorCode.FILE_TOO_LARGE
+        elif "not a valid PNG" in e.message:
+            code = ErrorCode.INVALID_FILE_FORMAT
+        else:
+            code = ErrorCode.VALIDATION_FAILED
+
         raise HTTPException(
-            status_code=400,
-            detail={"error": e.message, "field": e.field}
+            status_code=422,
+            detail=make_error_detail(
+                code=code,
+                message=e.message,
+                details={"field": e.field} if e.field else {}
+            )
         )
 
     # Generate job ID
@@ -174,7 +188,11 @@ async def get_job_status(job_id: str):
     elif state == "FAILURE":
         status = JobStatus.FAILED
         if result.info:
-            error = str(result.info)
+            # Extract structured error info from task result if available
+            if isinstance(result.info, dict):
+                error = result.info.get("error", str(result.info))
+            else:
+                error = str(result.info)
         updated_at = datetime.now(timezone.utc)
 
     elif state == "REVOKED":
@@ -229,7 +247,11 @@ async def cancel_job(
     if state in ["SUCCESS", "FAILURE"]:
         raise HTTPException(
             status_code=400,
-            detail=f"Cannot cancel job in state '{state}'"
+            detail=make_error_detail(
+                ErrorCode.JOB_NOT_READY,
+                f"Cannot cancel job in state '{state}'",
+                details={"job_id": job_id, "current_state": state}
+            )
         )
 
     # Step 1: Request cancellation
@@ -248,7 +270,11 @@ async def cancel_job(
         if not success:
             raise HTTPException(
                 status_code=400,
-                detail="No pending cancellation request. Request cancellation first.",
+                detail=make_error_detail(
+                    ErrorCode.VALIDATION_FAILED,
+                    "No pending cancellation request. Request cancellation first.",
+                    details={"job_id": job_id}
+                )
             )
 
         # Revoke the Celery task
