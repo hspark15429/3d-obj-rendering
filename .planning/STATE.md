@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-30)
 
 **Core value:** End-to-end working pipeline: Upload images, get back validated 3D meshes with quality reports. Everything runs with a single Docker command.
-**Current focus:** Phase 4 - Quality & Preview (In progress)
+**Current focus:** Phase 4 - Quality & Preview (Complete)
 
 ## Current Position
 
-Phase: 4 of 6 (Quality & Preview)
-Plan: 3 of 4 in current phase
-Status: In progress
-Last activity: 2026-01-31 - Completed 04-03-PLAN.md (preview generator service)
+Phase: 4 of 6 (Quality & Preview) - COMPLETE
+Plan: 4 of 4 in current phase
+Status: Phase complete
+Last activity: 2026-01-31 - Completed 04-04-PLAN.md (quality pipeline integration)
 
-Progress: [████████░░] 86% (18/21 plans complete)
+Progress: [█████████░] 90% (19/21 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 17
+- Total plans completed: 19
 - Average duration: 5 min
-- Total execution time: 1.4 hours
+- Total execution time: 1.5 hours
 
 **By Phase:**
 
@@ -31,11 +31,11 @@ Progress: [████████░░] 86% (18/21 plans complete)
 | 2. Job Pipeline | 4 | 18min | 5min |
 | 3. Model Integration | 4 | 16min | 4min |
 | 3.1 CUDA 12 Upgrade | 6 | 26min | 4min |
-| 4. Quality & Preview | 3 | 10min | 3min |
+| 4. Quality & Preview | 4 | 16min | 4min |
 
 **Recent Trend:**
-- Last 5 plans: 3min, 8min, 3min, 5min, 2min
-- Trend: Consistent velocity, Phase 4 progressing
+- Last 5 plans: 8min, 3min, 5min, 2min, 6min
+- Trend: Consistent velocity, Phase 4 complete
 
 *Updated after each plan completion*
 
@@ -114,6 +114,9 @@ Recent decisions affecting current work:
 - 04-02: Meshes without UVs handled with vertex colors or solid gray
 - 04-02: PIL ImageDraw for wireframe edge overlay
 - 04-03: Lazy renderer initialization - defer MeshRenderer creation to first access
+- 04-04: Lazy imports in services/__init__.py via __getattr__ - enables tests without torch
+- 04-04: Quality failure = job failure - per CONTEXT.md requirement
+- 04-04: String type annotations for forward references
 
 ### Pending Todos
 
@@ -129,7 +132,7 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-01-31T10:25:06Z
-Stopped at: Completed 04-03-PLAN.md
+Last session: 2026-01-31T10:32:38Z
+Stopped at: Completed 04-04-PLAN.md (Phase 4 complete)
 Resume file: None
-Next: Continue Phase 4 (04-04 quality pipeline integration)
+Next: Phase 5 - Downloads & Error Handling
