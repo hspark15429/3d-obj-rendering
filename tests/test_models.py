@@ -580,3 +580,49 @@ class TestIntegrationSanity:
             model = get_model(model_type)
             assert model is not None
             assert model.model_name == model_type
+
+
+# ============================================================================
+# VRAM Manager Tests
+# ============================================================================
+
+@TORCH_SKIP
+class TestVramManager:
+    """Tests for VRAM management service (requires PyTorch)."""
+
+    def test_check_vram_available_structure(self):
+        """check_vram_available returns expected structure."""
+        from app.services.vram_manager import check_vram_available
+
+        result = check_vram_available(1.0)  # Request 1GB
+
+        assert 'available' in result
+        assert 'free_gb' in result
+        assert isinstance(result['available'], bool)
+        assert isinstance(result['free_gb'], (int, float))
+
+    def test_cleanup_gpu_memory_runs(self):
+        """cleanup_gpu_memory runs without error."""
+        from app.services.vram_manager import cleanup_gpu_memory
+
+        # Should not raise
+        cleanup_gpu_memory()
+
+
+# ============================================================================
+# Mesh Export Tests
+# ============================================================================
+
+@TORCH_SKIP
+class TestMeshExportService:
+    """Tests for mesh export service (requires PyTorch)."""
+
+    def test_validate_mesh_output_missing_files(self, temp_output_dir):
+        """validate_mesh_output detects missing files."""
+        from app.services.mesh_export import validate_mesh_output
+
+        temp_output_dir.mkdir(parents=True, exist_ok=True)
+        result = validate_mesh_output(temp_output_dir, "mesh")
+
+        assert not result['valid']
+        assert 'error' in result
