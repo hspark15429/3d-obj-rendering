@@ -10,7 +10,7 @@
 
 - [x] **API-01**: User can submit a job with multi-view images and depth renders, selecting model type, and receive a job ID
 - [x] **API-02**: User can check job status (queued/processing/completed/failed) by job ID
-- [ ] **API-03**: User can download job results (mesh, textures, preview images, quality report) by job ID
+- [x] **API-03**: User can download job results (mesh, textures, preview images, quality report) by job ID
 - [x] **API-04**: User can cancel a running or queued job by job ID
 - [x] **API-05**: User can check API health via GET /health endpoint
 
@@ -40,9 +40,9 @@
 
 ### Error Handling
 
-- [ ] **ERR-01**: System validates input and returns clear error messages for invalid uploads
-- [ ] **ERR-02**: System handles model failures (OOM, convergence) gracefully with error status
-- [ ] **ERR-03**: System handles system resource issues (disk, memory) gracefully
+- [x] **ERR-01**: System validates input and returns clear error messages for invalid uploads
+- [x] **ERR-02**: System handles model failures (OOM, convergence) gracefully with error status
+- [x] **ERR-03**: System handles system resource issues (disk, memory) gracefully
 
 ### Documentation
 
@@ -72,7 +72,7 @@
 |-------------|-------|--------|
 | API-01 | Phase 2 | Complete |
 | API-02 | Phase 2 | Complete |
-| API-03 | Phase 5 | Pending |
+| API-03 | Phase 5 | Complete |
 | API-04 | Phase 2 | Complete |
 | API-05 | Phase 1 | Complete |
 | MODEL-01 | Phase 3.1 | Complete |
@@ -87,9 +87,9 @@
 | DEPLOY-01 | Phase 1 | Complete |
 | DEPLOY-02 | Phase 1 | Complete |
 | DEPLOY-03 | Phase 2 | Complete |
-| ERR-01 | Phase 5 | Pending |
-| ERR-02 | Phase 5 | Pending |
-| ERR-03 | Phase 5 | Pending |
+| ERR-01 | Phase 5 | Complete |
+| ERR-02 | Phase 5 | Complete |
+| ERR-03 | Phase 5 | Complete |
 | DOC-01 | Phase 6 | Pending |
 | DOC-02 | Phase 6 | Pending |
 | DOC-03 | Phase 6 | Pending |
