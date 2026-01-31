@@ -1,6 +1,6 @@
 # GPU-enabled Python container for 3D reconstruction
-# Phase 3: Added PyTorch ecosystem and model weight infrastructure
-FROM nvidia/cuda:11.8.0-cudnn8-devel-ubuntu22.04
+# Phase 3.1: Upgraded to CUDA 12.1 + PyTorch 2.4.1 for ReconViaGen compatibility
+FROM nvidia/cuda:12.1.1-cudnn8-devel-ubuntu22.04
 
 # Prevent interactive prompts during build
 ENV DEBIAN_FRONTEND=noninteractive
@@ -23,26 +23,23 @@ RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.10 1 &
 # Set working directory
 WORKDIR /app
 
-# Install PyTorch with CUDA 11.8 support FIRST (before other deps)
+# Install PyTorch with CUDA 12.1 support FIRST (before other deps)
 # This ensures correct CUDA version matching
 RUN pip install --no-cache-dir \
-    torch==2.1.0+cu118 \
-    torchvision==0.16.0+cu118 \
-    torchaudio==2.1.0+cu118 \
-    --index-url https://download.pytorch.org/whl/cu118
+    torch==2.4.1 torchvision==0.19.1 torchaudio==2.4.1 \
+    --index-url https://download.pytorch.org/whl/cu121
 
-# Install PyTorch3D from source (requires CUDA toolkit for compilation)
-# Using pre-built wheels from pytorch3d for faster builds
-RUN pip install --no-cache-dir \
-    "pytorch3d @ https://dl.fbaipublicfiles.com/pytorch3d/packaging/wheels/py310_cu118_pyt210/pytorch3d-0.7.5-cp310-cp310-linux_x86_64.whl"
+# NOTE: PyTorch3D wheel removed - cu118 wheel incompatible with cu121
+# PyTorch3D will be addressed in Phase 3.1-02 (alternative: trimesh + nvdiffrast)
 
-# Pin numpy<2 for nvdiffrast compatibility (NumPy 2.x breaks CUDA extensions)
+# Pin numpy<2 for nvdiffrast/spconv compatibility (NumPy 2.x breaks CUDA extensions ABI)
 RUN pip install --no-cache-dir "numpy<2"
 
 # Install nvdiffrast (NVIDIA's differentiable rasterizer)
 # - --no-build-isolation: find PyTorch during CUDA extension build
 # - TORCH_CUDA_ARCH_LIST: specify GPU architectures (no GPU during Docker build)
-ENV TORCH_CUDA_ARCH_LIST="7.0;7.5;8.0;8.6;8.9"
+#   Updated for newer architectures: Ada Lovelace (8.9) and Hopper (9.0)
+ENV TORCH_CUDA_ARCH_LIST="7.0;7.5;8.0;8.6;8.9;9.0"
 RUN pip install --no-cache-dir --no-build-isolation git+https://github.com/NVlabs/nvdiffrast/
 
 # Copy and install remaining Python dependencies
