@@ -4,12 +4,14 @@ Job API router for 3D reconstruction service.
 Endpoints:
 - POST /jobs - Submit new reconstruction job
 - GET /jobs/{job_id} - Get job status
+- GET /jobs/{job_id}/download - Download job results as ZIP
 - POST /jobs/{job_id}/cancel - Cancel job (two-step)
 """
 from datetime import datetime, timezone
 from typing import Optional
 
 from fastapi import APIRouter, UploadFile, File, HTTPException, Form, Body
+from fastapi.responses import StreamingResponse
 from nanoid import generate
 
 from app.api.schemas import (
@@ -23,8 +25,15 @@ from app.api.schemas import (
 from app.services.file_handler import (
     validate_upload_files,
     save_job_files,
+    get_job_path,
     FileValidationError,
 )
+from app.services.result_packager import (
+    create_result_zip,
+    validate_job_outputs,
+    IncompleteResultsError,
+)
+from app.api.error_codes import ErrorCode, make_error_detail
 from app.services.job_manager import (
     request_cancellation,
     confirm_cancellation,
@@ -250,3 +259,121 @@ async def cancel_job(
             status="cancelled",
             message="Job cancellation confirmed. Task will abort at next checkpoint.",
         )
+
+
+@router.get("/{job_id}/download")
+async def download_results(job_id: str):
+    """
+    Download all job results as a single ZIP file.
+
+    ZIP contains: mesh files (OBJ, PLY, GLB), textures, preview images, quality.json
+
+    Returns:
+        StreamingResponse: ZIP file
+
+    Raises:
+        HTTPException 404: Job not found (never existed)
+        HTTPException 409: Job not completed yet (still processing)
+        HTTPException 410: Job results expired/cleaned up
+        HTTPException 500: Job failed or outputs incomplete
+    """
+    # Get Celery task result
+    result = celery_app.AsyncResult(job_id)
+    state = result.state
+
+    # Check job state and return appropriate errors
+    if state == "PENDING":
+        # Job never existed or expired from Celery
+        raise HTTPException(
+            status_code=404,
+            detail=make_error_detail(
+                ErrorCode.JOB_NOT_FOUND,
+                f"Job '{job_id}' not found",
+                details={"job_id": job_id}
+            )
+        )
+
+    if state in ["STARTED", "PROGRESS"]:
+        # Job still processing
+        progress = 0
+        if state == "PROGRESS" and result.info and isinstance(result.info, dict):
+            progress = result.info.get("progress", 0)
+
+        raise HTTPException(
+            status_code=409,
+            detail=make_error_detail(
+                ErrorCode.JOB_NOT_READY,
+                f"Job '{job_id}' is still processing ({progress}% complete)",
+                details={"job_id": job_id, "progress": progress, "state": state}
+            )
+        )
+
+    if state == "FAILURE":
+        # Job failed
+        error_msg = str(result.info) if result.info else "Unknown error"
+        raise HTTPException(
+            status_code=500,
+            detail=make_error_detail(
+                ErrorCode.MODEL_FAILED,
+                f"Job '{job_id}' failed: {error_msg}",
+                details={"job_id": job_id, "error": error_msg}
+            )
+        )
+
+    if state == "REVOKED":
+        # Job was cancelled
+        raise HTTPException(
+            status_code=500,
+            detail=make_error_detail(
+                ErrorCode.MODEL_FAILED,
+                f"Job '{job_id}' was cancelled",
+                details={"job_id": job_id, "cancelled": True}
+            )
+        )
+
+    # SUCCESS - check output directory exists
+    job_path = get_job_path(job_id)
+    output_dir = job_path / "output"
+
+    if not output_dir.exists():
+        # Results were cleaned up or never created
+        raise HTTPException(
+            status_code=410,
+            detail=make_error_detail(
+                ErrorCode.JOB_EXPIRED,
+                f"Job '{job_id}' results have expired or been cleaned up",
+                details={"job_id": job_id}
+            )
+        )
+
+    # Validate outputs exist
+    is_valid, missing = validate_job_outputs(output_dir)
+    if not is_valid:
+        raise HTTPException(
+            status_code=500,
+            detail=make_error_detail(
+                ErrorCode.INCOMPLETE_RESULTS,
+                f"Job '{job_id}' has incomplete results",
+                details={"job_id": job_id, "missing": missing}
+            )
+        )
+
+    # Create ZIP
+    try:
+        zip_buffer = create_result_zip(job_id, output_dir)
+    except IncompleteResultsError as e:
+        raise HTTPException(
+            status_code=500,
+            detail=make_error_detail(
+                ErrorCode.INCOMPLETE_RESULTS,
+                e.message,
+                details={"job_id": job_id, "missing": e.missing_items}
+            )
+        )
+
+    # Return streaming response with ZIP
+    return StreamingResponse(
+        zip_buffer,
+        media_type="application/zip",
+        headers={"Content-Disposition": f"attachment; filename={job_id}.zip"}
+    )
