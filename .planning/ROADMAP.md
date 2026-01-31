@@ -107,10 +107,13 @@ Plans:
   3. System classifies results as normal/warning/failure based on thresholds
   4. Quality metrics and status saved as JSON with results
   5. System generates static preview images from multiple angles
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] TBD (to be planned)
+- [ ] 04-01-PLAN.md — Quality metrics foundation (scikit-image, PSNR/SSIM/depth)
+- [ ] 04-02-PLAN.md — Mesh rendering service (nvdiffrast wrapper)
+- [ ] 04-03-PLAN.md — Preview generator and quality report
+- [ ] 04-04-PLAN.md — Pipeline integration and verification
 
 ### Phase 5: Results & Error Handling
 **Goal**: Users can download complete results and receive clear errors for failures
@@ -152,9 +155,9 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 3.1 -> 4 -> 5 -> 6
 | 2. Job Pipeline | 4/4 | Complete | 2026-01-31 |
 | 3. Model Integration | 4/4 | Complete | 2026-01-31 |
 | 3.1 CUDA 12 & Real Models | 6/6 | Complete | 2026-01-31 |
-| 4. Quality & Preview | 0/TBD | Not started | - |
+| 4. Quality & Preview | 0/4 | Planned | - |
 | 5. Results & Error Handling | 0/TBD | Not started | - |
 | 6. Documentation | 0/TBD | Not started | - |
 
 ---
-*Last updated: 2026-01-31 - Phase 3.1 complete, ready for Phase 4*
+*Last updated: 2026-01-31 - Phase 4 planned (4 plans in 3 waves)*
