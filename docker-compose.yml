@@ -16,9 +16,11 @@ services:
     build: .
     ports:
       - "8000:8000"
+    shm_size: '8gb'
     volumes:
       - ./app:/app/app
       - job-storage:/app/storage
+      - model-weights:/app/weights
     environment:
       - NVIDIA_VISIBLE_DEVICES=0
       - LOG_LEVEL=INFO
@@ -46,9 +48,11 @@ services:
   worker:
     build: .
     command: celery -A app.celery_app worker --loglevel=info --concurrency=1
+    shm_size: '8gb'
     volumes:
       - ./app:/app/app
       - job-storage:/app/storage
+      - model-weights:/app/weights
     environment:
       - NVIDIA_VISIBLE_DEVICES=0
       - CELERY_BROKER_URL=redis://redis:6379/0
@@ -69,3 +73,4 @@ services:
 volumes:
   redis-data:
   job-storage:
+  model-weights:
