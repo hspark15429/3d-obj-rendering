@@ -96,6 +96,12 @@ RUN mkdir -p /app/weights/reconviagen /app/weights/nvdiffrec
 # Copy application code
 COPY app/ app/
 
+# Copy tests for container testing
+COPY tests/ tests/
+
+# Copy scripts for verification
+COPY scripts/ scripts/
+
 # Create storage directories
 RUN mkdir -p /app/storage/jobs
 
