@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-01-30)
 ## Current Position
 
 Phase: 3.1 of 6 (CUDA 12 & Real Models - INSERTED)
-Plan: 3 of 6 in current phase
+Plan: 4 of 6 in current phase
 Status: In progress
-Last activity: 2026-01-31 - Completed 03.1-03-PLAN.md (nvdiffrec dependencies and camera estimation)
+Last activity: 2026-01-31 - Completed 03.1-04-PLAN.md (ReconViaGen TRELLIS implementation)
 
-Progress: [█████░░░░░] 57% (12/21 plans complete)
+Progress: [██████░░░░] 62% (13/21 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 12
+- Total plans completed: 13
 - Average duration: 5 min
-- Total execution time: 1.1 hours
+- Total execution time: 1.15 hours
 
 **By Phase:**
 
@@ -30,11 +30,11 @@ Progress: [█████░░░░░] 57% (12/21 plans complete)
 | 1. Foundation | 1 | 12min | 12min |
 | 2. Job Pipeline | 4 | 18min | 5min |
 | 3. Model Integration | 4 | 16min | 4min |
-| 3.1 CUDA 12 Upgrade | 3 | 12min | 4min |
+| 3.1 CUDA 12 Upgrade | 4 | 15min | 4min |
 
 **Recent Trend:**
-- Last 5 plans: 3min, 8min, 5min, 3min, 4min
-- Trend: Consistent velocity, infrastructure upgrades efficient
+- Last 5 plans: 8min, 5min, 3min, 4min, 3min
+- Trend: Consistent velocity, model integration efficient
 
 *Updated after each plan completion*
 
@@ -96,6 +96,10 @@ Recent decisions affecting current work:
 - 03.1-03: OpenGL camera convention - camera looks along -Z with Y-up for NeRF/nvdiffrec
 - 03.1-03: Canonical 6-view camera layout - front/back/right/left/top/bottom at distance 2.5
 - 03.1-03: Default focal length 1111.0 - produces ~26 degree FOV for object rendering
+- 03.1-04: postprocessing_utils.to_glb() for mesh export - handles texture baking internally
+- 03.1-04: GLB as primary output - trimesh converts to OBJ/PLY for compatibility
+- 03.1-04: 16GB VRAM requirement for TRELLIS - needs ~14-16GB for full pipeline
+- 03.1-04: Non-fatal OBJ/PLY conversion - GLB always available even if trimesh fails
 
 ### Pending Todos
 
@@ -111,7 +115,7 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-01-31T05:53:00Z
-Stopped at: Completed 03.1-03-PLAN.md
+Last session: 2026-01-31T05:58:55Z
+Stopped at: Completed 03.1-04-PLAN.md
 Resume file: None
-Next: 03.1-04-PLAN.md (nvdiffrec pipeline wrapper)
+Next: 03.1-05-PLAN.md (nvdiffrec pipeline wrapper)
