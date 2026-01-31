@@ -71,8 +71,9 @@ RUN pip install --no-cache-dir \
     scipy \
     onnxruntime
 
-# Install utils3d from GitHub (TRELLIS dependency)
-RUN pip install --no-cache-dir git+https://github.com/EasternJournalist/utils3d.git
+# Clone utils3d from GitHub (TRELLIS dependency)
+# Note: Can't pip install due to broken pyproject.toml metadata
+RUN git clone --depth 1 https://github.com/EasternJournalist/utils3d.git /app/utils3d_src
 
 # Install huggingface_hub for model downloads
 RUN pip install --no-cache-dir huggingface_hub==0.33.4
@@ -85,8 +86,8 @@ RUN git clone --recursive --depth 1 https://github.com/estheryang11/ReconViaGen.
 
 # CRITICAL: Set SPCONV_ALGO for spconv to work with TRELLIS
 ENV SPCONV_ALGO=native
-# Add /app to PYTHONPATH so trellis module can be found
-ENV PYTHONPATH="/app:${PYTHONPATH}"
+# Add /app and utils3d to PYTHONPATH so trellis and utils3d modules can be found
+ENV PYTHONPATH="/app:/app/utils3d_src:${PYTHONPATH}"
 
 # Phase 3.1: nvdiffrec dependencies
 # tiny-cuda-nn - neural network primitives for fast optimization
