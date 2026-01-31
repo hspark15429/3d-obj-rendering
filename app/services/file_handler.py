@@ -69,9 +69,9 @@ async def validate_upload_files(
                 field=f"views[{i}]"
             )
 
-        # Check file size
-        await view_file.seek(0, 2)  # Seek to end
-        size = await view_file.tell()
+        # Check file size by reading remaining content
+        rest = await view_file.read()
+        size = 8 + len(rest)  # magic bytes + rest
 
         if size > MAX_FILE_SIZE:
             await view_file.seek(0)
@@ -95,9 +95,9 @@ async def validate_upload_files(
                 field=f"depth_renders[{i}]"
             )
 
-        # Check file size
-        await depth_file.seek(0, 2)  # Seek to end
-        size = await depth_file.tell()
+        # Check file size by reading remaining content
+        rest = await depth_file.read()
+        size = 8 + len(rest)  # magic bytes + rest
 
         if size > MAX_FILE_SIZE:
             await depth_file.seek(0)

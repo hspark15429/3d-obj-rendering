@@ -95,8 +95,8 @@ async def submit_job(
     # Save files to storage
     await save_job_files(job_id, views, depth_renders)
 
-    # Queue reconstruction task
-    task = process_reconstruction.delay(job_id, model_type)
+    # Queue reconstruction task (use job_id as Celery task_id for status lookup)
+    task = process_reconstruction.apply_async(args=(job_id, model_type), task_id=job_id)
 
     # Return response
     return JobSubmitResponse(
