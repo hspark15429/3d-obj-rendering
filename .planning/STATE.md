@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-01-30)
 ## Current Position
 
 Phase: 6 of 6 (Documentation)
-Plan: 1 of 3 in current phase
+Plan: 2 of 3 in current phase
 Status: In progress
-Last activity: 2026-01-31 - Completed 06-01-PLAN.md
+Last activity: 2026-01-31 - Completed 06-02-PLAN.md
 
-Progress: [██████████] 100% (23/23 plans complete)
+Progress: [██████████] 100% (24/25 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 20
-- Average duration: 5 min
-- Total execution time: 1.6 hours
+- Total plans completed: 22
+- Average duration: 4 min
+- Total execution time: 1.7 hours
 
 **By Phase:**
 
@@ -33,11 +33,11 @@ Progress: [██████████] 100% (23/23 plans complete)
 | 3.1 CUDA 12 Upgrade | 6 | 26min | 4min |
 | 4. Quality & Preview | 4 | 16min | 4min |
 | 5. Results & Error Handling | 3 | 9min | 3min |
-| 6. Documentation | 1 | 4min | 4min |
+| 6. Documentation | 2 | 6min | 3min |
 
 **Recent Trend:**
-- Last 5 plans: 6min, 2min, 3min, 4min, 4min
-- Trend: Consistent velocity, documentation on track
+- Last 5 plans: 2min, 3min, 4min, 4min, 2min
+- Trend: Fast documentation execution, phase nearly complete
 
 *Updated after each plan completion*
 
@@ -134,6 +134,9 @@ Recent decisions affecting current work:
 - 06-01: Three Mermaid diagrams in architecture.md - covers architecture flow, data flow, cancellation flow
 - 06-01: Comprehensive error code table in API.md - all 17 codes with HTTP status, meaning, suggestions
 - 06-01: Client examples in three languages - Python for ML workflows, JS for web, bash for testing
+- 06-02: Prerequisites section before quick-start - Users need to know hardware requirements (16GB VRAM, nvidia-docker) before attempting to run
+- 06-02: Complete 4-step curl workflow - Users can copy-paste entire workflow: health check → submit → poll → download
+- 06-02: Real file paths from input/ directory - Example curl commands work immediately with provided test data
 
 ### Pending Todos
 
@@ -149,7 +152,7 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-01-31T12:52:07Z
-Stopped at: Completed 06-01-PLAN.md (core reference documentation)
+Last session: 2026-01-31T12:57:00Z
+Stopped at: Completed 06-02-PLAN.md (README with quick-start)
 Resume file: None
-Next: Plan 06-02 (README and examples)
+Next: Plan 06-03 (example outputs)
