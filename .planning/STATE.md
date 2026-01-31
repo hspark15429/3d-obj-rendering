@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-01-30)
 ## Current Position
 
 Phase: 3.1 of 6 (CUDA 12 & Real Models - INSERTED)
-Plan: 1 of 6 in current phase
+Plan: 2 of 6 in current phase
 Status: In progress
-Last activity: 2026-01-31 - Completed 03.1-01-PLAN.md (CUDA 12.1 infrastructure)
+Last activity: 2026-01-31 - Completed 03.1-02-PLAN.md (TRELLIS dependencies and pipeline wrapper)
 
-Progress: [█████░░░░░] 48% (10/21 plans complete)
+Progress: [█████░░░░░] 52% (11/21 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 10
+- Total plans completed: 11
 - Average duration: 5 min
-- Total execution time: 0.9 hours
+- Total execution time: 1.0 hours
 
 **By Phase:**
 
@@ -30,10 +30,10 @@ Progress: [█████░░░░░] 48% (10/21 plans complete)
 | 1. Foundation | 1 | 12min | 12min |
 | 2. Job Pipeline | 4 | 18min | 5min |
 | 3. Model Integration | 4 | 16min | 4min |
-| 3.1 CUDA 12 Upgrade | 1 | 5min | 5min |
+| 3.1 CUDA 12 Upgrade | 2 | 8min | 4min |
 
 **Recent Trend:**
-- Last 5 plans: 3min, 2min, 3min, 8min, 5min
+- Last 5 plans: 2min, 3min, 8min, 5min, 3min
 - Trend: Consistent velocity, infrastructure upgrades efficient
 
 *Updated after each plan completion*
@@ -88,6 +88,10 @@ Recent decisions affecting current work:
 - 03.1-01: PyTorch 2.4.1 with cu121 wheels - latest stable version
 - 03.1-01: Removed PyTorch3D wheel - cu118 incompatible, use trimesh+nvdiffrast
 - 03.1-01: TORCH_CUDA_ARCH_LIST 7.0-9.0 - includes Ada Lovelace and Hopper GPUs
+- 03.1-02: Pre-built flash-attn wheel - source build takes hours and fails; use cu12+torch2.4 wheel
+- 03.1-02: SPCONV_ALGO=native in Dockerfile and Python - critical for spconv to work with TRELLIS
+- 03.1-02: Clone estheryang11/ReconViaGen with --recursive - includes TRELLIS submodule
+- 03.1-02: Lazy TrellisPipelineWrapper loading - defers heavy imports to load() method
 
 ### Pending Todos
 
@@ -103,7 +107,7 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-01-31T05:38:05Z
-Stopped at: Completed 03.1-01-PLAN.md
+Last session: 2026-01-31T05:43:16Z
+Stopped at: Completed 03.1-02-PLAN.md
 Resume file: None
-Next: 03.1-02-PLAN.md (ReconViaGen dependencies)
+Next: 03.1-03-PLAN.md (Replace ReconViaGen STUB with real implementation)
