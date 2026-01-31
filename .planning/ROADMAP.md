@@ -85,7 +85,7 @@ Plans:
   6. Both models produce actual textured mesh outputs (not placeholder geometry)
   7. All existing tests pass with upgraded dependencies
 
-**Note on MASt3R**: The TRELLIS-VGGT pipeline bundles camera estimation (MASt3R/VGGT) internally. No separate MASt3R installation is needed - the Stable-X implementation includes all required components.
+**Note on MASt3R**: The estheryang11/ReconViaGen repo bundles camera estimation (MASt3R/VGGT/DUSt3R) in its `wheels/` directory. No separate installation is needed - the TRELLIS-VGGT pipeline uses these bundled components internally.
 
 **Plans**: 6 plans
 
