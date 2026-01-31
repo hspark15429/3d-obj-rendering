@@ -5,34 +5,34 @@
 See: .planning/PROJECT.md (updated 2026-01-30)
 
 **Core value:** End-to-end working pipeline: Upload images, get back validated 3D meshes with quality reports. Everything runs with a single Docker command.
-**Current focus:** Phase 1 - Foundation
+**Current focus:** Phase 2 - Job Pipeline
 
 ## Current Position
 
 Phase: 2 of 6 (Job Pipeline)
-Plan: 1 of 4 in current phase
+Plan: 2 of 4 in current phase
 Status: In progress
-Last activity: 2026-01-31 — Completed 02-01-PLAN.md
+Last activity: 2026-01-31 — Completed 02-02-PLAN.md
 
-Progress: [██░░░░░░░░] 20% (2 of 10 plans complete)
+Progress: [███░░░░░░░] 30% (3 of 10 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 2
-- Average duration: 8 min
-- Total execution time: 0.27 hours
+- Total plans completed: 3
+- Average duration: 6 min
+- Total execution time: 0.32 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 1. Foundation | 1 | 12min | 12min |
-| 2. Job Pipeline | 1 | 4min | 4min |
+| 2. Job Pipeline | 2 | 7min | 4min |
 
 **Recent Trend:**
-- Last 5 plans: 12min, 4min
-- Trend: Accelerating (Phase 2 infrastructure setup efficient)
+- Last 5 plans: 12min, 4min, 3min
+- Trend: Accelerating (Phase 2 plans smaller, focused)
 
 *Updated after each plan completion*
 
@@ -54,6 +54,12 @@ Recent decisions affecting current work:
 - 02-01: Worker prefetch_multiplier=1 - Fair task distribution for long-running jobs
 - 02-01: Visibility timeout 14400s - 4-hour timeout for model inference without premature requeue
 - 02-01: Factory pattern for Celery app - Avoids circular imports with shared_task decorator
+- 02-02: Pydantic v2 syntax - model_config instead of deprecated Config class
+- 02-02: PNG magic byte validation - Validate by reading first 8 bytes instead of trusting extension
+- 02-02: Two-step cancellation - CancelRequest.confirm defaults to False
+- 02-02: Field-level error tracking - FileValidationError includes field parameter
+- 02-02: File pointer reset - Critical seek(0) after validation for later reads
+- 02-02: 20MB/200MB limits - 20MB per file, 200MB total prevents DoS
 
 ### Pending Todos
 
@@ -65,6 +71,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-01-31 01:28:35 UTC
-Stopped at: Completed 02-01-PLAN.md (Celery infrastructure)
+Last session: 2026-01-31
+Stopped at: Completed 02-02-PLAN.md (Phase 2, Plan 2 of 4)
 Resume file: None
