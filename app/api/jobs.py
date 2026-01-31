@@ -9,7 +9,7 @@ Endpoints:
 from datetime import datetime, timezone
 from typing import Optional
 
-from fastapi import APIRouter, UploadFile, File, HTTPException, Query, Body
+from fastapi import APIRouter, UploadFile, File, HTTPException, Form, Body
 from nanoid import generate
 
 from app.api.schemas import (
@@ -18,6 +18,7 @@ from app.api.schemas import (
     CancelRequest,
     CancelResponse,
     JobStatus,
+    ModelType,
 )
 from app.services.file_handler import (
     validate_upload_files,
@@ -54,7 +55,7 @@ def generate_job_id() -> str:
 async def submit_job(
     views: list[UploadFile] = File(..., description="6 multi-view PNG images"),
     depth_renders: list[UploadFile] = File(..., description="6 depth render PNG images"),
-    model_type: str = Query("reconviagen", description="Model: reconviagen or nvdiffrec"),
+    model_type: ModelType = Form(ModelType.RECONVIAGEN, description="Model type: reconviagen, nvdiffrec, or both"),
 ):
     """
     Submit a new 3D reconstruction job.
@@ -65,21 +66,14 @@ async def submit_job(
     Args:
         views: List of 6 multi-view PNG images
         depth_renders: List of 6 depth render PNG images
-        model_type: Reconstruction model to use
+        model_type: Reconstruction model to use (reconviagen, nvdiffrec, or both)
 
     Returns:
-        JobSubmitResponse: Job ID, status (queued), and creation timestamp
+        JobSubmitResponse: Job ID, status (queued), model_type, and creation timestamp
 
     Raises:
         HTTPException 400: Invalid model type or file validation failed
     """
-    # Validate model type
-    if model_type not in ["reconviagen", "nvdiffrec"]:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Invalid model_type '{model_type}'. Must be 'reconviagen' or 'nvdiffrec'."
-        )
-
     # Validate uploaded files
     try:
         await validate_upload_files(views, depth_renders)
@@ -95,13 +89,18 @@ async def submit_job(
     # Save files to storage
     await save_job_files(job_id, views, depth_renders)
 
-    # Queue reconstruction task (use job_id as Celery task_id for status lookup)
-    task = process_reconstruction.apply_async(args=(job_id, model_type), task_id=job_id)
+    # Queue reconstruction task with model_type
+    # Use model_type.value to pass string to Celery (avoid enum serialization issues)
+    process_reconstruction.apply_async(
+        args=[job_id, model_type.value],
+        task_id=job_id
+    )
 
-    # Return response
+    # Return response with model_type
     return JobSubmitResponse(
         job_id=job_id,
         status=JobStatus.QUEUED,
+        model_type=model_type,
         created_at=datetime.now(timezone.utc),
     )
 
@@ -112,18 +111,18 @@ async def get_job_status(job_id: str):
     Get status of a reconstruction job.
 
     Queries Celery for task state and maps to job status.
-    Shows progress percentage when task is processing.
+    Shows progress percentage and current model when task is processing.
 
     Args:
         job_id: Job identifier
 
     Returns:
-        JobStatusResponse: Current job status with progress
+        JobStatusResponse: Current job status with progress and current_model
 
     State mapping:
         - PENDING -> queued
         - STARTED -> processing (progress=0)
-        - PROGRESS -> processing (progress from task)
+        - PROGRESS -> processing (progress from task, current_model from meta)
         - SUCCESS -> completed
         - FAILURE -> failed
         - REVOKED -> cancelled
@@ -134,6 +133,7 @@ async def get_job_status(job_id: str):
     # Map Celery state to JobStatus
     state = result.state
     progress = None
+    current_model = None
     error = None
     created_at = datetime.now(timezone.utc)  # Placeholder - should be from DB in production
     updated_at = None
@@ -154,6 +154,7 @@ async def get_job_status(job_id: str):
         status = JobStatus.PROCESSING
         if result.info and isinstance(result.info, dict):
             progress = result.info.get("progress", 0)
+            current_model = result.info.get("model")
         updated_at = datetime.now(timezone.utc)
 
     elif state == "SUCCESS":
@@ -179,6 +180,7 @@ async def get_job_status(job_id: str):
         job_id=job_id,
         status=status,
         progress=progress,
+        current_model=current_model,
         created_at=created_at,
         updated_at=updated_at,
         error=error,
