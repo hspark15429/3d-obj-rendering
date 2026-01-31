@@ -69,6 +69,8 @@ RUN git clone --recursive --depth 1 https://github.com/estheryang11/ReconViaGen.
 
 # CRITICAL: Set SPCONV_ALGO for spconv to work with TRELLIS
 ENV SPCONV_ALGO=native
+# Add /app to PYTHONPATH so trellis module can be found
+ENV PYTHONPATH="/app:${PYTHONPATH}"
 
 # Phase 3.1: nvdiffrec dependencies
 # tiny-cuda-nn - neural network primitives for fast optimization
